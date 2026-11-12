@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Maplewood TISH</title>
+<style>
+:root{--teal:#3fd0d4;--navy:#1b2a8a;--ink:#1d2433;--bg:#eef3f6;--card:#fff;--line:#c9d3dc;--red:#c62828;--sel:#1b2a8a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;font-size:16px}
+/* ---------- app chrome ---------- */
+.top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:env(safe-area-inset-top) 0 0}
+.top .bar{display:flex;align-items:center;gap:8px;padding:8px 10px}
+.top .addr{flex:1;min-width:0;font-weight:600;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .tb{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:14px}
+.tabs{display:flex;overflow-x:auto;background:#d9e2ea;border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto;border:0;background:none;padding:10px 12px;color:var(--navy);font-weight:600;font-size:14px;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{border-bottom-color:var(--navy);background:#fff}
+main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 12px;overflow:hidden}
+.sh{display:flex;align-items:center;gap:6px;background:var(--teal);color:#06205e;font-weight:700;padding:6px 10px;font-size:13.5px;letter-spacing:.2px}
+.sh .t{flex:1}
+.sh button{border:1px solid #0d6e74;background:#e9fbfc;color:var(--navy);border-radius:6px;padding:3px 8px;font-size:12.5px;font-weight:600}
+.it{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:7px 10px;border-top:1px solid #e3e9ee;align-items:center}
+.it:first-of-type{border-top:0}
+.it .il{grid-column:1/2;font-size:14.5px}
+.it .il b{color:var(--navy);margin-right:3px}
+.it .iv{grid-column:2/3;grid-row:1/3;min-width:62px;height:44px;border:1.5px solid var(--navy);border-radius:7px;background:#fff;font-style:italic;font-weight:600;color:#000;position:relative;padding:0 6px}
+.it .iv .rc{position:absolute;top:-7px;right:-7px;background:var(--navy);color:#fff;border-radius:10px;font-size:11px;font-style:normal;min-width:18px;height:18px;line-height:18px;padding:0 4px}
+.it .iv.need{border-color:var(--red);box-shadow:0 0 0 2px #f6c8c8}
+.it .iv.need .rc{background:var(--red)}
+.btns{display:flex;flex-wrap:wrap;gap:4px}
+.btns button{min-width:34px;height:36px;padding:0 4px;border:1px solid #9aa7b4;border-radius:6px;background:#f6f8fa;color:#222;font-weight:600;font-size:14px}
+.btns button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
+.sub .il{padding-left:22px;color:#444}
+.spec{padding:8px 10px;border-top:1px solid #e3e9ee;font-size:14px}
+.spec .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:4px 0}
+.spec .lab{font-weight:600;color:var(--navy);min-width:62px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #9aa7b4;border-radius:16px;padding:5px 10px;background:#f6f8fa}
+.chip input{margin:0}
+.chip.on{background:#dfe6ff;border-color:var(--sel)}
+.spec input[type=text],.spec input:not([type]){width:90px;padding:5px 7px;border:1px solid #9aa7b4;border-radius:6px}
+.note{font-size:12.5px;color:#4a5562;padding:6px 10px}
+.fld{display:block;padding:6px 10px}
+.fld>span{display:block;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.fld input,.fld select,.fld textarea{width:100%;padding:8px 9px;border:1px solid #9aa7b4;border-radius:7px;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.unitbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:12px}
+.unitbar b{color:var(--navy)}
+.unitbar .ub{border:1px solid #9aa7b4;background:#f6f8fa;border-radius:7px;padding:6px 12px;font-weight:700}
+.unitbar .ub.on{background:var(--sel);color:#fff;border-color:var(--sel)}
+.unitbar input{flex:1;min-width:120px;padding:6px 8px;border:1px solid #9aa7b4;border-radius:6px}
+.pbtn{display:inline-block;border:0;border-radius:8px;padding:10px 16px;background:var(--navy);color:#fff;font-weight:600}
+.pbtn.sec{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.pbtn.red{background:#fff;color:var(--red);border:1.5px solid var(--red)}
+.pager{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;gap:8px;justify-content:center;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(238,243,246,.96);border-top:1px solid var(--line)}
+.pager button{flex:1;max-width:200px}
+.joblist .job{display:flex;gap:10px;align-items:center;padding:10px;border-top:1px solid #e3e9ee}
+.joblist .job:first-child{border-top:0}
+.joblist .job .jt{flex:1;min-width:0}
+.joblist .job .jt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.joblist .job .jt small{color:#5a6673}
+.joblist .job button{border:1px solid #9aa7b4;background:#f6f8fa;border-radius:7px;padding:6px 10px;font-size:13px}
+.warn{background:#fff4e5;border:1px solid #f0c27a;border-radius:8px;padding:8px 10px;font-size:13.5px;margin-bottom:10px}
+.warn b{color:#8a4b00}
+/* modal */
+.mod{position:fixed;inset:0;z-index:50;background:rgba(10,20,40,.45);display:none;align-items:flex-end;justify-content:center}
+.mod.on{display:flex}
+.mod .box{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:14px 14px 0 0;padding:12px 12px calc(14px + env(safe-area-inset-bottom))}
+@media(min-width:700px){.mod{align-items:center}.mod .box{border-radius:14px}}
+.mod h3{margin:2px 0 8px;font-size:16px;color:var(--navy)}
+.rem{border:1px solid var(--line);border-radius:9px;padding:8px;margin:8px 0;background:#fafcfd}
+.rem .rr{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.rem .rr button{min-width:36px;height:32px;border:1px solid #9aa7b4;border-radius:6px;background:#fff;font-weight:700}
+.rem .rr button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
+.rem .rr .sp{flex:1}
+.rem textarea{width:100%;min-height:62px;padding:7px;border:1px solid #9aa7b4;border-radius:7px;resize:vertical}
+.canned{display:flex;flex-direction:column;gap:5px;margin:6px 0 10px}
+.canned button{text-align:left;border:1px solid #c9d3dc;background:#f3f7fb;border-radius:7px;padding:8px 9px;font-size:14px;white-space:pre-line}
+.small{font-size:12.5px;color:#5a6673}
+/* report preview */
+#reportWrap{overflow:hidden;margin:0 auto}
+#reportZoom{transform-origin:0 0;width:816px}
+#reportZoom .pg{margin:0 0 14px;box-shadow:0 1px 6px rgba(0,0,0,.25)}
+.hide{display:none!important}
+
+/* ---------- printed report ---------- */
+.pg{width:816px;height:1056px;position:relative;background:#fff;color:#000;font-family:"Times New Roman",Times,serif;font-size:12.5px;overflow:hidden;line-height:1.2}
+.pg .fv,.pg .cl{font-family:Arial,Helvetica,sans-serif;font-style:italic;font-size:13px}
+.pg .b{font-weight:bold}
+.pg .bl{display:inline-block;border-bottom:1px solid #000;text-align:center;vertical-align:baseline;line-height:13px;min-height:14px;font-family:Arial,Helvetica,sans-serif;font-style:italic;font-size:13px}
+.pg .r{display:flex;align-items:flex-end;height:16px;white-space:nowrap}
+.pg .r .n{width:26px;text-align:right;padding-right:5px;flex:0 0 auto}
+.pg .r .l{flex:0 0 auto}
+.pg .r .d{flex:1 1 auto;overflow:hidden;padding:0 4px 0 6px;letter-spacing:1.5px;font-size:11px}
+.pg .r .d::after{content:". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."}
+.pg .r .v{flex:0 0 52px;margin-right:2px}
+.pg .r.h{font-weight:bold;font-size:13.5px}
+.pg .r.h .n{font-weight:normal}
+.pg .lc{position:absolute;left:14px;width:356px}
+.pg .cl{position:absolute;white-space:pre}
+.pg .ftr{position:absolute;left:18px;right:30px;font-size:12.5px}
+.pg .pa{position:absolute;left:30px;top:22px;width:630px;font-size:12.5px}
+.pg .ch{position:absolute;font-size:13px}
+.p1 .sb{position:absolute;right:6px;writing-mode:vertical-rl;font-family:"Times New Roman",Times,serif;white-space:nowrap}
+.p1 .bx{border:1px solid #000;padding:6px 10px}
+.p1 p{margin:0}
+.p1 ol{margin:0;padding:0 0 0 28px}
+.p1 ol li{margin:0 0 7px}
+@media print{
+  @page{size:letter;margin:0}
+  html,body{background:#fff}
+  .noprint,.top,.tabs,.pager,.mod,main>*:not(#view){display:none!important}
+  main{padding:0;margin:0;max-width:none}
+  #view{display:block!important}
+  #view>*:not(#reportWrap){display:none!important}
+  #reportWrap{width:auto!important;height:auto!important;overflow:visible!important}
+  #reportZoom{transform:none!important}
+  #reportZoom .pg{margin:0;box-shadow:none;break-after:page;page-break-after:always;height:11in}
+  #reportZoom .pg:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="bar">
+    <button class="tb" onclick="showJobs()">☰ Reports</button>
+    <div class="addr" id="topAddr">Maplewood TISH</div>
+    <button class="tb" onclick="go('view')">View</button>
+    <button class="tb" onclick="doPrint()">Print</button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+<main id="main">
+  <section id="jobs" class="hide"></section>
+  <section id="settings" class="hide"></section>
+  <section id="edit" class="hide"></section>
+  <section id="view" class="hide">
+    <div class="noprint" id="viewMsgs"></div>
+    <div class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="pbtn" onclick="doPrint()">Print / Save PDF</button>
+      <button class="pbtn" onclick="saveJobFile()">Save report file (.json)</button>
+      <button class="pbtn sec" onclick="go(lastTab||'addr')">Back to editing</button>
+    </div>
+    <div id="reportWrap"><div id="reportZoom"></div></div>
+  </section>
+</main>
+<div class="pager noprint" id="pager">
+  <button class="pbtn sec" onclick="pageStep(-1)">◀ Page Up</button>
+  <button class="pbtn sec" onclick="pageStep(1)">Page Dn ▶</button>
+</div>
+<div class="mod" id="mod" onclick="if(event.target===this)closeMod()"><div class="box" id="modBox"></div></div>
+
+<script>
+/* =====================================================================
+   Maplewood Truth-In-Sale of Housing — evaluator app
+   Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
+   ===================================================================== */
+const LEAF='data:image/jpeg;base64,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';
+const SIG_DEFAULT='data:image/jpeg;base64,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';
+
+/* ---------- storage ---------- */
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+          set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){alert('Could not save in this browser: '+e.message);return false}}};
+const K_JOBS='mwtish_jobs_v1',K_SET='mwtish_settings_v1',K_LIB='mwtish_lib_v1',K_CUR='mwtish_current_v1';
+
+const DEF_SET={
+  evaluator:'Nick Koenig', phone:'612-802-4561', useSig:true, sig:'',
+  hdr:['CITY OF MAPLEWOOD','1830 County Road B East','Maplewood, MN  55109','(651) 249-2300'],
+  complaints:'Complaints about this report should be directed to the Community Development Department,  Maplewood City Hall,  1830 County Road B East,  Maplewood,  MN  55109,  (651) 249-2300.',
+  rev:'Rev 2/2014', zip:'55109', autoRemark:true
+};
+let SET=Object.assign({},DEF_SET,LS.get(K_SET,{}));
+
+const BOILER62='This evaluation is not the same as a buyers evaluation. Buyers are highly encouraged to have an inspection with a buyer inspector. Finished, covered and/or snow covered areas are not viewed. Cosmetics are not evaluated. City rental evaluations, city codes, bank - FHA and zoning evaluations have different standards.';
+const SMOKE39='Monitor smoke and carbon monoxide detectors batteries, age and operation.';
+const DEF_LIB={
+ '1':["Low headroom (less than 6' 8\"). Handrail ends lack returns","Handrail ends lack returns","Handrail missing","Low headroom (less than 6' 8\")"],
+ '4':["Efflorescence observed on foundation walls","Staining observed"],
+ '8':["Panel not fully indexed. Access to the panel impeded by the dryer","Missing grounding jumper on house side of water meter","Panel not fully indexed"],
+ '9':["Open junction box(es)","Extension cord used as permanent wiring"],
+ '12':["Missing backflow preventers at laundry sink and exterior faucet(s)"],
+ '13':["Old gas valve(s) in use","Gas piping was not fully visible"],
+ '17a':["CO and heat exchanger(s) not tested.\nFurnace - Basement"],
+ '18a':["CO and heat exchanger(s) not tested.\nHeater - Garage"],
+ '39':[SMOKE39],
+ '43':["Receptacle(s) not GFCI protected, 1st floor"],
+ '52':["Less than required egress window size."],
+ '58':["Limited view from attic hatch"],
+ '62':[BOILER62],
+ '65':["Grade is low / flat in areas."],
+ '71':["Limited view from ground"],
+ '77':["Cracks observed"],
+ '82':["Fireplace components not fully visible"],
+ '83':["Fireplace components not fully visible"],
+ '84':["Fireplace components not fully visible"],
+ '86':["Basement partially finished"],
+ '*':["Not fully visible","Limited view","Finished/covered areas not viewed"]
+};
+let LIB=LS.get(K_LIB,null)||JSON.parse(JSON.stringify(DEF_LIB));
+// one-time merge of newer starter remarks into a saved list
+(function(){const V=2;if(LS.get('mwtish_libv',1)>=V)return;
+  Object.keys(DEF_LIB).forEach(k=>{LIB[k]=LIB[k]||[];DEF_LIB[k].forEach(t=>{if(!LIB[k].includes(t))LIB[k].push(t)})});
+  LS.set(K_LIB,LIB);LS.set('mwtish_libv',V)})();
+
+/* ---------- catalog ---------- */
+const KIND={
+  MB:['M','B','H','C','NA','NV','-'],
+  YN:['Y','N','NA','NV','-'],
+  AC:['M','B','H','C','-'],
+  SM:['Y','N','H','-'],
+  YO:['Y','N','-'],
+  FY:['Y','N','C','NA','-'],
+  FM:['M','B','H','C','NA'],
+  IN:['Y','N','NA','NV']
+};
+const MULTI=new Set(['B','H','C']);
+const RANK={H:0,B:1,C:2};
+const ordVal=v=>(v||'').split(',').filter(Boolean).sort((a,b)=>(RANK[a]??9)-(RANK[b]??9)).join(',');
+const ordRem=a=>(a||[]).map((m,i)=>[m,i]).sort((x,y)=>((RANK[x[0].r]??9)-(RANK[y[0].r]??9))||(x[1]-y[1])).map(x=>x[0]);
+// [id, label, kind, printNum, goodValueForAllM]
+const SECTIONS=[
+ {id:'bsmt',tab:'b1',title:'BASEMENT/CELLAR',items:[['1','Stairs and handrails','MB'],['2','Basement/cellar floor','MB'],['3','Foundation','MB'],['4','Evidence of dampness or staining','YN',null,'N'],['5','First floor, floor system','MB'],['6','Beams and columns','MB']]},
+ {id:'elec',tab:'b1',title:'ELECTRICAL SERVICE(S)',special:'elec',items:[['8','Electrical service installation/grounding','MB'],['9','Electrical wiring, outlets and fixtures','MB']]},
+ {id:'plumb',tab:'b1',title:'PLUMBING SYSTEM',items:[['10','Floor drain(s) (basement)','MB'],['11','Waste and vent piping (all floors)','MB'],['12','Water piping (all floors)','MB'],['13','Gas piping (all floors)','MB'],['14','Water heater(s), installation','MB'],['15','Water heater(s), venting','MB'],['16','Plumbing fixtures (basement)','MB']]},
+ {id:'h17',tab:'b2',title:'HEATING SYSTEM(S) — 17. Heating plant(s)',special:'h17',items:[['17a','Installation and visible condition','MB','a.'],['17b','Viewed in operation','YO','b.',''],['17c','Combustion venting','MB','c.']]},
+ {id:'h18',tab:'b2',title:'18. Additional heating unit(s)',special:'h18',items:[['18a','Installation and visible condition','MB','a.'],['18b','Viewed in operation','YO','b.',''],['18c','Combustion venting','MB','c.']]},
+ {id:'a19',tab:'b2',title:'ADDITIONAL COMMENTS',items:[['19','ADDITIONAL COMMENTS (1 through 18)','AC',null,'']]},
+ {id:'kit',tab:'c1',unit:1,title:'KITCHEN',items:[['20','Walls and ceiling','MB'],['21','Floor condition and ceiling height','MB'],['22','Evidence of dampness or staining','YN',null,'N'],['23','Electrical outlets and fixtures','MB'],['24','Plumbing fixtures','MB'],['25','Water flow','MB'],['26','Window size/openable area/mechanical exhaust','MB'],['27','Condition of doors/windows/mech. exhaust','MB']]},
+ {id:'lr',tab:'c1',unit:1,title:'LIVING AND DINING ROOM(S)',items:[['28','Walls and ceiling','MB'],['29','Floor condition and ceiling height','MB'],['30','Evidence of dampness or staining','YN',null,'N'],['31','Electrical outlets and fixtures','MB'],['32','Window size and openable area','MB'],['33','Window and door condition','MB']]},
+ {id:'hall',tab:'c2',unit:1,title:'HALLWAYS, STAIRS AND ENTRIES',items:[['34','Walls, ceilings and floors','MB'],['35','Evidence of dampness or staining','YN',null,'N'],['36','Stairs and handrails to upper floors','MB'],['37','Electrical outlets and fixtures','MB'],['38','Window and door condition','MB'],['39','Smoke detector(s)','SM',null,'Y'],['39loc','Properly located','YO','','Y'],['39hw','Hard-wired','SM','','']]},
+ {id:'bath',tab:'c2',unit:1,title:'BATHROOM(S)',items:[['40','Walls and ceiling','MB'],['41','Floor condition and ceiling height','MB'],['42','Evidence of dampness or staining','YN',null,'N'],['43','Electrical outlets and fixtures','MB'],['44','Plumbing fixtures','MB'],['45','Water flow','MB'],['46','Window size/openable area/mechanical exhaust','MB'],['47','Condition of windows/doors/mech. exhaust','MB']]},
+ {id:'sleep',tab:'c3',unit:1,title:'SLEEPING ROOM(S)',items:[['48','Walls and ceiling','MB'],['49','Floor condition, area, and ceiling height','MB'],['50','Evidence of dampness or staining','YN',null,'N'],['51','Electrical outlets and fixtures','MB'],['52','Window size and openable area','MB'],['53','Window and door condition','MB']]},
+ {id:'porch',tab:'c3',unit:1,title:'ENCLOSED PORCHES AND OTHER ROOMS',items:[['54','Walls and floor condition','MB'],['55','Evidence of dampness or staining','YN',null,'N'],['56','Electrical outlets and fixtures','MB'],['57','Window and door condition','MB']]},
+ {id:'attic',tab:'c3',unit:1,title:'ATTIC SPACE (Visible Areas)',items:[['58','Roof boards and rafters','MB'],['59','Evidence of dampness or staining','YN',null,'N'],['60','Electrical wiring/outlets/fixtures','MB'],['61','Ventilation','YN',null,'Y']]},
+ {id:'a62',tab:'c3',unit:1,title:'ADDITIONAL COMMENTS',items:[['62','ADDITIONAL COMMENTS (20 through 61)','AC',null,'']]},
+ {id:'ext',tab:'d1',title:'EXTERIOR (Visible Areas)',items:[['63','Foundation','MB'],['64','Basement/cellar windows','MB'],['65','Drainage (grade)','MB'],['66','Exterior walls','MB'],['67','Doors (frames/storms/screens)','MB'],['68','Windows (frames/storms/screens)','MB'],['69','Open porches, stairways and decks','MB'],['70','Cornice and trim','MB'],['71','Roof structure and covering','MB'],['72','Gutters and downspouts','MB'],['73','Chimneys','MB'],['74','Outlets, fixtures and service entrance','MB']]},
+ {id:'gar',tab:'d1',title:'GARAGE',items:[['75','Roof structure and covering','MB'],['76','Wall structure and covering','MB'],['77','Slab condition','MB'],['78','Garage doors','MB'],['79','Garage opener- (see important notice #6)','YN',null,'Y'],['80','Electrical wiring, outlets and fixtures','MB']]},
+ {id:'a81',tab:'d2',title:'ADDITIONAL COMMENTS',items:[['81','ADDITIONAL COMMENTS (62 through 80)','AC',null,'']]},
+ {id:'fire',tab:'d2',title:'FIREPLACE/WOODSTOVES',special:'fire',items:[['82','Dampers installed in fireplaces','FY',null,''],['83','Installation','FM',null,''],['84','Condition','FM',null,'']]},
+ {id:'ins',tab:'d2',title:'INSULATION (Supplemental — Y/N, NA, NV only)',special:'ins',allLabel:'All Y',items:[['85','Attic Insulation','IN',null,'Y'],['86','Foundation Insulation','IN',null,'Y'],['87','Kneewall Insulation','IN',null,'Y'],['88','Rim Joist Insulation','IN',null,'Y']]},
+ {id:'a89',tab:'d2',title:'ADDITIONAL COMMENTS',items:[['89','ADDITIONAL COMMENTS (81 through 88)','AC',null,'']]}
+];
+const ITEM={};SECTIONS.forEach(s=>s.items.forEach(it=>{ITEM[it[0]]={id:it[0],label:it[1],kind:it[2],num:it[3]==null?it[0]+'.':it[3],good:it[4]===undefined?(it[2]==='MB'?'M':''):it[4],unit:!!s.unit,sec:s.id}}));
+const TABS=[['addr','Address'],['b1','B Bsmt/Elec/Plumb'],['b2','B Heat'],['c1','C Kit/LR/DR'],['c2','C Hall/Bath'],['c3','C BR/Porch/Attc'],['d1','D Ext/Gar'],['d2','D Fire/Insul'],['view','Print']];
+const remKey=id=>(id==='39loc'||id==='39hw')?'39':id;
+
+/* ---------- job model ---------- */
+let JOBS=LS.get(K_JOBS,[]);
+let J=null, curUnit=0, lastTab='addr', curTab='addr';
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function blankUnit(first){return first?{name:'',r:{'62':{v:'C',rem:[{r:'C',t:BOILER62}]},'39':{v:'',rem:[{r:'C',t:SMOKE39}]}}}:{name:'',r:{'39':{v:'',rem:[{r:'C',t:SMOKE39}]}}}}
+function newJob(){
+  return {id:'j'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),updated:Date.now(),
+   a:{num:'',street:'',address:'',sortAddr:'',ownerFirst:'',ownerLast:'',owner:'',same:true,own1:'',own2:'Maplewood, MN '+SET.zip,ownerPhone:'',ownerCo:'',
+      agent:'',agentLine:'',comments:'',notes:'',evaluator:SET.evaluator,evalPhone:SET.phone,date:today(),time:'',dwelling:'Single Family',dwellOther:'',filed:false,pre:false},
+   elec:{svc:'1',svcMore:'',amps:[],ampsOther:'',volts:''},
+   h17:{n:'1',nMore:'',fuel:'Gas',fuelTxt:'Gas',type:'Air',typeTxt:'Air'},
+   h18:{fuel:'None',fuelTxt:'',type:'None',typeTxt:''},
+   fire:{n:'0',nMore:''},
+   ins:{'85':{type:'',in:''},'86':{type:'',in:''},'87':{type:'',in:''},'88':{type:'',in:''}},
+   r:{},units:[blankUnit(true)]};
+}
+function store(it,u){ // returns rating record holder for item
+  const meta=ITEM[it];
+  if(meta&&meta.unit){const U=J.units[u==null?curUnit:u];return U.r}
+  return J.r;
+}
+function rec(id,u){const s=store(id,u);if(!s[id])s[id]={v:'',rem:[]};return s[id]}
+function peek(id,u){const s=store(id,u);return s[id]||{v:'',rem:[]}}
+let saveT=null;
+function save(){ if(!J)return; J.updated=Date.now(); const i=JOBS.findIndex(x=>x.id===J.id); if(i<0)JOBS.unshift(J); else JOBS[i]=J;
+  clearTimeout(saveT); saveT=setTimeout(()=>{LS.set(K_JOBS,JOBS);LS.set(K_CUR,J.id)},250); updTop(); }
+function flush(){clearTimeout(saveT);LS.set(K_JOBS,JOBS);if(J)LS.set(K_CUR,J.id)}
+window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmtDate(d){if(!d)return '';const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(d);return m?m[2]+'/'+m[3]+'/'+m[1]:d}
+function updTop(){$('#topAddr').textContent=J?(J.a.address||'(new report)')+(J.units.length>1&&/^c/.test(curTab)?'  ·  Unit '+(curUnit+1):''):'Maplewood TISH'}
+function needsRemark(id,u){const r=peek(id,u);const k=remKey(id);const rr=id===k?r:peek(k,u);
+  const vals=(r.v||'').split(',').filter(x=>MULTI.has(x));return vals.some(v=>!(rr.rem||[]).some(m=>m.r===v&&m.t.trim()))}
+
+/* ---------- navigation ---------- */
+function renderTabs(){$('#tabs').innerHTML=TABS.map(([k,l])=>`<button class="${k===curTab?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}
+function go(tab){
+  if(!J){showJobs();return}
+  curTab=tab; if(tab!=='view')lastTab=tab;
+  ['jobs','settings','edit','view'].forEach(s=>$('#'+s).classList.add('hide'));
+  $('#tabs').classList.remove('hide');$('#pager').classList.toggle('hide',tab==='view');
+  renderTabs(); updTop();
+  if(tab==='view'){ $('#view').classList.remove('hide'); renderReport(); }
+  else { $('#edit').classList.remove('hide'); renderEdit(); }
+  window.scrollTo(0,0);
+  const b=$('#tabs .on'); if(b)b.scrollIntoView({inline:'center',block:'nearest'});
+}
+function pageStep(d){const keys=TABS.map(t=>t[0]);let i=keys.indexOf(curTab)+d;if(i<0)i=0;if(i>=keys.length)i=keys.length-1;go(keys[i])}
+
+/* ---------- edit screens ---------- */
+function renderEdit(){
+  const el=$('#edit');
+  if(curTab==='addr'){el.innerHTML=addrHTML();return}
+  let h='';
+  const secs=SECTIONS.filter(s=>s.tab===curTab);
+  if(secs.some(s=>s.unit)) h+=unitBar();
+  secs.forEach(s=>h+=secHTML(s));
+  el.innerHTML=h;
+}
+function unitBar(){
+  const n=J.units.length;let b='';
+  for(let i=0;i<n;i++)b+=`<button class="ub ${i===curUnit?'on':''}" onclick="setUnit(${i})">${i+1}</button>`;
+  return `<div class="unitbar"><b>Interior Unit</b>${b}
+   <input placeholder="Unit name (e.g. Upper, Lower, #2)" value="${esc(J.units[curUnit].name)}" oninput="J.units[curUnit].name=this.value;save()">
+   <span class="small">${n} unit${n>1?'s':''} · change # of units on Address tab</span></div>`;
+}
+function setUnit(i){curUnit=i;renderEdit();updTop()}
+function secHTML(s){
+  const isIns=s.special==='ins';
+  let h=`<div class="card"><div class="sh"><span class="t">${esc(s.title)}</span>
+    <button onclick="allSet('${s.id}','good')">${s.allLabel||'All M'}</button><button onclick="allSet('${s.id}','NA')">All NA</button></div>`;
+  if(s.special==='elec')h+=elecHTML();
+  if(s.special==='h17'||s.special==='h18')h+=heatHTML(s.special);
+  if(s.special==='fire')h+=fireHTML();
+  if(s.special==='h17')h+=`<div class="note">The Evaluator is not required to ignite the heating plant(s), except during heating season, between October 15 and April 15.</div>`;
+  s.items.forEach(it=>h+=itemHTML(it[0],isIns));
+  return h+'</div>';
+}
+function itemHTML(id,isIns){
+  const m=ITEM[id], r=peek(id), rk=remKey(id), nrem=(peek(rk).rem||[]).filter(x=>x.t.trim()).length;
+  const sub=id==='39loc'||id==='39hw';
+  const btns=KIND[m.kind].map(v=>`<button class="${(r.v||'').split(',').includes(v)?'on':''}" onclick="rate('${id}','${v}')">${v}</button>`).join('');
+  let extra='';
+  if(isIns){const x=J.ins[id];extra=`<div style="display:flex;gap:6px;margin-top:2px"><input list="insTypes" placeholder="Type" value="${esc(x.type)}" style="flex:1;min-width:0;padding:6px;border:1px solid #9aa7b4;border-radius:6px" oninput="J.ins['${id}'].type=this.value;save()"><input placeholder="Inches" inputmode="decimal" value="${esc(x.in)}" style="width:76px;padding:6px;border:1px solid #9aa7b4;border-radius:6px" oninput="J.ins['${id}'].in=this.value;save()"></div>`}
+  const need=needsRemark(id);
+  return `<div class="it ${sub?'sub':''}" id="it_${id}"><div class="il">${m.num?'<b>'+(/^[abc]\.$/.test(m.num)?id.toUpperCase()+'.':m.num)+'</b>':''}${esc(m.label)}${extra}</div>
+   <button class="iv ${need?'need':''}" onclick="openRem('${rk}')">${esc(ordVal(r.v))||'&nbsp;'}${nrem&&!sub?`<span class="rc">${nrem}</span>`:''}${sub?'':'' }</button>
+   <div class="btns">${btns}</div></div>`;
+}
+function refreshItem(id){const el=$('#it_'+id);if(!el)return;const t=document.createElement('div');t.innerHTML=itemHTML(id,ITEM[id].sec==='ins');el.replaceWith(t.firstElementChild)}
+function rate(id,v){
+  const r=rec(id);let cur=(r.v||'').split(',').filter(Boolean);
+  if(MULTI.has(v)){ cur=cur.filter(x=>MULTI.has(x)); if(cur.includes(v))cur=cur.filter(x=>x!==v); else cur.push(v); }
+  else cur=(cur.length===1&&cur[0]===v)?[]:[v];
+  const added=MULTI.has(v)&&cur.includes(v);
+  r.v=ordVal(cur.join(',')); save(); refreshItem(id);
+  if(added&&SET.autoRemark&&id!=='39loc'&&id!=='39hw'){const rr=peek(remKey(id));if(!(rr.rem||[]).some(m=>m.r===v))openRem(remKey(id),v)}
+}
+function allSet(secId,mode){
+  const s=SECTIONS.find(x=>x.id===secId);
+  s.items.forEach(([id])=>{const m=ITEM[id];const r=rec(id);
+    if(mode==='NA'){ if(KIND[m.kind].includes('NA'))r.v='NA'; else if(!r.v)r.v='-'; }
+    else if(!r.v && m.good) r.v=m.good; });
+  save();renderEdit();
+}
+function elecHTML(){const e=J.elec;
+  const rad=(name,vals,cur,fn)=>vals.map(v=>`<label class="chip ${cur===v?'on':''}"><input type="radio" name="${name}" ${cur===v?'checked':''} onchange="${fn}('${v}')">${v}</label>`).join('');
+  const amps=['30','60','100','150','200'].map(a=>`<label class="chip ${e.amps.includes(a)?'on':''}"><input type="checkbox" ${e.amps.includes(a)?'checked':''} onchange="tglAmp('${a}')">${a}</label>`).join('');
+  return `<div class="spec">
+   <div class="row"><span class="lab"># of Services</span>${rad('svc',['1','2','3'],e.svc,'setSvc')}<span>More:</span><input value="${esc(e.svcMore)}" oninput="J.elec.svcMore=this.value;save()" style="width:60px"></div>
+   <div class="row"><span class="lab">7. Amps</span>${amps}<span>Other:</span><input value="${esc(e.ampsOther)}" oninput="J.elec.ampsOther=this.value;save()" style="width:70px"></div>
+   <div class="row"><span class="lab">Volts</span>${rad('volts',['115','115/230'],e.volts,'setVolts')}</div>
+   <div class="row small">BASEMENT ONLY: (items 8–9)</div></div>`}
+function setSvc(v){J.elec.svc=v;J.elec.svcMore='';save();renderEdit()}
+function setVolts(v){J.elec.volts=J.elec.volts===v?'':v;save();renderEdit()}
+function tglAmp(a){const x=J.elec.amps;const i=x.indexOf(a);if(i<0)x.push(a);else x.splice(i,1);save();renderEdit()}
+function heatHTML(k){const h=J[k];
+  const fuels=k==='h17'?['Gas','Oil','Electric','None']:['Gas','Oil','Electric','Kerosene','Wood','None'];
+  const types=['Air','Water','Space','None'];
+  const rad=(f,vals,cur)=>vals.map(v=>`<label class="chip ${cur===v?'on':''}"><input type="radio" ${cur===v?'checked':''} onchange="setHeat('${k}','${f}','${v}')">${v}</label>`).join('');
+  let n='';if(k==='h17')n=`<div class="row"><span class="lab"># of</span>${['1','2','3'].map(v=>`<label class="chip ${h.n===v&&!h.nMore?'on':''}"><input type="radio" ${h.n===v&&!h.nMore?'checked':''} onchange="J.h17.n='${v}';J.h17.nMore='';save();renderEdit()">${v}</label>`).join('')}<span>More:</span><input value="${esc(h.nMore)}" style="width:60px" oninput="J.h17.nMore=this.value;save()"></div>`;
+  return `<div class="spec">${n}
+   <div class="row"><span class="lab">Fuel</span>${rad('fuel',fuels,h.fuel)}<span>Other:</span><input value="${esc(h.fuelTxt)}" oninput="J.${k}.fuelTxt=this.value;save()"></div>
+   <div class="row"><span class="lab">Type</span>${rad('type',types,h.type)}<span>Other:</span><input value="${esc(h.typeTxt)}" oninput="J.${k}.typeTxt=this.value;save()"></div>
+   <div class="small">“None” prints blank. The Other box is what prints.</div></div>`}
+function setHeat(k,f,v){const h=J[k];h[f]=v;h[f+'Txt']=v==='None'?'':v;save();renderEdit()}
+function fireHTML(){const f=J.fire;
+  return `<div class="spec"><div class="row"><span class="lab"># of</span>${['0','1','2','3','4','5','6'].map(v=>`<label class="chip ${f.n===v&&!f.nMore?'on':''}"><input type="radio" ${f.n===v&&!f.nMore?'checked':''} onchange="J.fire.n='${v}';J.fire.nMore='';save();renderEdit()">${v}</label>`).join('')}<span>More:</span><input value="${esc(f.nMore)}" style="width:60px" oninput="J.fire.nMore=this.value;save()"></div></div>`}
+
+/* ---------- address tab ---------- */
+function F(label,key,opts={}){const v=J.a[key];
+  if(opts.area)return `<label class="fld"><span>${label}</span><textarea rows="${opts.rows||2}" oninput="setA('${key}',this.value)">${esc(v)}</textarea></label>`;
+  return `<label class="fld"><span>${label}</span><input type="${opts.type||'text'}" ${opts.im?`inputmode="${opts.im}"`:''} value="${esc(v)}" oninput="setA('${key}',this.value)" ${opts.id?`id="${opts.id}"`:''}></label>`}
+function setA(k,v){const a=J.a;a[k]=v;
+  if(k==='num'||k==='street'){a.address=(a.num+' '+a.street).trim();a.sortAddr=a.street?(a.street+', '+a.num).trim():'';const e=$('#f_address');if(e)e.value=a.address;const s=$('#f_sort');if(s)s.value=a.sortAddr}
+  if(k==='ownerFirst'||k==='ownerLast'){a.owner=(a.ownerFirst+' '+a.ownerLast).trim();const e=$('#f_owner');if(e)e.value=a.owner}
+  if(a.same&&(k==='num'||k==='street'||k==='address')){a.own1=a.address;const e=$('#f_own1');if(e)e.value=a.own1}
+  save();}
+function addrHTML(){const a=J.a;
+  const dw=['Single Family','Duplex','Townhouse','Condo','Other'].map(d=>`<label class="chip ${a.dwelling===d?'on':''}"><input type="radio" name="dw" ${a.dwelling===d?'checked':''} onchange="J.a.dwelling='${d}';save();renderEdit()">${d}</label>`).join(' ');
+  return `<div class="card"><div class="sh"><span class="t">PROPERTY</span></div>
+  <div class="grid2">${F('Street Number','num',{im:'numeric'})}${F('Street','street')}</div>
+  <div class="grid2"><label class="fld"><span>Address (prints on report)</span><input id="f_address" value="${esc(a.address)}" oninput="setA('address',this.value)"></label>
+  <label class="fld"><span>Short address for sorting</span><input id="f_sort" value="${esc(a.sortAddr)}" oninput="setA('sortAddr',this.value)"></label></div></div>
+  <div class="card"><div class="sh"><span class="t">OWNER</span></div>
+  <div class="grid2">${F('Owner First Name','ownerFirst')}${F('Owner Last Name','ownerLast')}</div>
+  <label class="fld"><span>Owner's Name (prints)</span><input id="f_owner" value="${esc(a.owner)}" oninput="setA('owner',this.value)"></label>
+  <label class="fld" style="display:flex;align-items:center;gap:8px"><input type="checkbox" style="width:auto" ${a.same?'checked':''} onchange="J.a.same=this.checked;if(this.checked)J.a.own1=J.a.address;save();renderEdit()"> Same address as property</label>
+  <label class="fld"><span>Owner's Address</span><input id="f_own1" value="${esc(a.own1)}" oninput="setA('own1',this.value)"></label>
+  <label class="fld"><span>City, State Zip (include ALL zip codes, even in Maplewood)</span><input value="${esc(a.own2)}" oninput="setA('own2',this.value)"></label>
+  <div class="grid2">${F("Owner's Phone",'ownerPhone',{type:'tel'})}${F("Owner's Company",'ownerCo')}</div></div>
+  <div class="card"><div class="sh"><span class="t">TYPE OF DWELLING / UNITS</span></div>
+  <div class="spec"><div class="row">${dw}</div>${a.dwelling==='Other'?`<div class="row"><span>Other:</span><input value="${esc(a.dwellOther)}" style="width:200px" oninput="J.a.dwellOther=this.value;save()"></div>`:''}
+  <div class="row"><span class="lab"># of Units</span>${[1,2,3,4].map(n=>`<label class="chip ${J.units.length===n?'on':''}"><input type="radio" ${J.units.length===n?'checked':''} onchange="setUnits(${n})">${n}</label>`).join('')}
+  <span class="small">Units 2+ get their own Kitchen → Attic pages (items 20–62).</span></div></div></div>
+  <div class="card"><div class="sh"><span class="t">COMMENTS / AGENT</span></div>
+  ${F('Comments (prints on page 1)','comments',{area:1,rows:3})}
+  <div class="grid2">${F('Listing Agent','agent')}${F('Listing Agent and Agency (as appears on report)','agentLine')}</div>
+  ${F('Notes (do not print on report)','notes',{area:1})}</div>
+  <div class="card"><div class="sh"><span class="t">EVALUATION</span></div>
+  <div class="grid2">${F('Evaluator','evaluator')}${F('Evaluator Phone','evalPhone',{type:'tel'})}</div>
+  <div class="grid2">${F('Date','date',{type:'date'})}${F('Time','time',{type:'time'})}</div>
+  <div class="spec"><div class="row">
+   <label class="chip"><input type="checkbox" ${a.filed?'checked':''} onchange="J.a.filed=this.checked;save()">Filed with City</label>
+   <label class="chip"><input type="checkbox" ${a.pre?'checked':''} onchange="J.a.pre=this.checked;save()">Pre-Inspection</label></div></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pbtn" onclick="saveJobFile()">Save report file (.json)</button><button class="pbtn sec" onclick="doPrint()">Print / Save PDF</button></div>`;
+}
+function setUnits(n){
+  const cur=J.units.length;
+  if(n<cur){const lose=J.units.slice(n).some(u=>Object.keys(u.r).some(k=>k!=='62'&&k!=='39'&&u.r[k].v));
+    if(lose&&!confirm(`Remove unit${cur-n>1?'s':''} ${n+1}${cur-n>1?'–'+cur:''}? Their ratings will be deleted.`)){renderEdit();return}
+    J.units=J.units.slice(0,n);}
+  while(J.units.length<n)J.units.push(blankUnit());
+  if(curUnit>=n)curUnit=0; save();renderEdit();
+}
+
+/* ---------- remarks modal ---------- */
+let modId=null;
+function openRem(id,newRating){
+  modId=id; const r=rec(id);
+  if(newRating){r.rem.push({r:newRating,t:''});save()}
+  drawMod(newRating?r.rem.length-1:-1);
+  $('#mod').classList.add('on');
+}
+function closeMod(){$('#mod').classList.remove('on');const id=modId;modId=null;
+  const r=peek(id);r.rem=ordRem((r.rem||[]).filter(m=>m.t.trim()||m.keep));r.v=ordVal(r.v);save();
+  if(curTab==='view')renderReport(); else { refreshItem(id); if(id==='39'){refreshItem('39loc');refreshItem('39hw')} } }
+function drawMod(focusIdx){
+  const id=modId,m=ITEM[id],r=rec(id);
+  const unitTxt=m.unit&&J.units.length>1?` · Unit ${curUnit+1}`:'';
+  const pick=[...(LIB[id]||[]),...(LIB['*']||[])];
+  const RB=['B','H','C','M','Y','N','NV','NA',''];
+  let h=`<h3>${esc(m.num||'')} ${esc(m.label)}${unitTxt}</h3>
+   <div class="btns" style="margin-bottom:6px">${KIND[m.kind].map(v=>`<button class="${(r.v||'').split(',').includes(v)?'on':''}" onclick="rate('${id}','${v}');drawMod()">${v}</button>`).join('')}<span class="small" style="align-self:center;margin-left:6px">Rating: <b>${esc(r.v)||'—'}</b></span></div>
+   <div class="small">Remarks print Hazard first, then Below, then Comment (e.g. “${esc(remLabel(id))} H …”). Any B, C or H needs a written comment.</div>`;
+  (r.rem||[]).forEach((x,i)=>{
+    h+=`<div class="rem"><div class="rr">${RB.map(v=>`<button class="${x.r===v?'on':''}" onclick="rec('${id}').rem[${i}].r='${v}';save();drawMod()">${v||'none'}</button>`).join('')}<span class="sp"></span>
+     <button title="Move up" onclick="mvRem(${i},-1)">↑</button><button title="Save to quick list" onclick="libAdd('${id}',${i})">★</button><button title="Delete" style="color:#c62828" onclick="rec('${id}').rem.splice(${i},1);save();drawMod()">✕</button></div>
+     <textarea id="rt${i}" oninput="rec('${id}').rem[${i}].t=this.value;save()" placeholder="Comment (new line = new printed line, e.g. location)">${esc(x.t)}</textarea></div>`});
+  const defR=()=>{const vs=(r.v||'').split(',').filter(x=>MULTI.has(x));return vs.find(v=>!(r.rem||[]).some(q=>q.r===v))||vs[0]||'C'};
+  h+=`<div style="display:flex;gap:8px;margin:8px 0"><button class="pbtn sec" onclick="rec('${id}').rem.push({r:'${defR()}',t:''});save();drawMod(rec('${id}').rem.length-1)">+ Blank remark</button><span style="flex:1"></span><button class="pbtn" onclick="closeMod()">Done</button></div>`;
+  if(pick.length)h+=`<div class="small"><b>Quick remarks</b> — tap to add</div><div class="canned">${pick.map((t,i)=>`<button onclick="addCanned(${i})">${esc(t)}</button>`).join('')}</div>`;
+  $('#modBox').innerHTML=h; window._pick=pick; window._defR=defR;
+  if(focusIdx>=0){const t=$('#rt'+focusIdx);if(t)setTimeout(()=>t.focus(),60)}
+}
+function addCanned(i){const r=rec(modId);r.rem.push({r:window._defR(),t:window._pick[i]});save();drawMod()}
+function mvRem(i,d){const a=rec(modId).rem;const j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];save();drawMod()}
+function libAdd(id,i){const t=(rec(id).rem[i].t||'').trim();if(!t)return;LIB[id]=LIB[id]||[];if(!LIB[id].includes(t)){LIB[id].unshift(t);LS.set(K_LIB,LIB)}drawMod();alert('Saved to quick remarks for item '+id)}
+function remLabel(id){return /^\d+[abc]$/.test(id)?id.toUpperCase():id+'.'}
+
+/* ---------- jobs list ---------- */
+function showJobs(){
+  curTab='jobs';['settings','edit','view'].forEach(s=>$('#'+s).classList.add('hide'));$('#tabs').classList.add('hide');$('#pager').classList.add('hide');
+  const el=$('#jobs');el.classList.remove('hide');
+  const list=[...JOBS].sort((a,b)=>(a.a.sortAddr||a.a.address||'').localeCompare(b.a.sortAddr||b.a.address||''));
+  const byDate=[...JOBS].sort((a,b)=>b.updated-a.updated);
+  const row=j=>`<div class="job"><div class="jt"><b>${esc(j.a.address||'(no address)')}</b><small>${esc(j.a.owner||'')} · ${fmtDate(j.a.date)}${j.units.length>1?' · '+j.units.length+' units':''}${j.a.filed?' · filed':''}</small></div>
+    <button onclick="openJob('${j.id}')">Open</button><button onclick="copyJob('${j.id}')">Copy</button><button style="color:#c62828" onclick="delJob('${j.id}')">✕</button></div>`;
+  el.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+     <button class="pbtn" onclick="createJob()">+ New Maplewood report</button>
+     <label class="pbtn">Open report file<input type="file" accept=".json,application/json,text/plain" class="hide" onchange="openJobFile(this)"></label>
+     <button class="pbtn sec" onclick="showSettings()">Settings</button>
+     <button class="pbtn sec" onclick="exportAll()">Export backup</button>
+     <label class="pbtn sec">Import<input type="file" accept=".json,application/json" class="hide" onchange="importFile(this)"></label></div>
+   <div class="warn"><b>Saved in this browser only.</b> Export a backup now and then — clearing Safari data or switching devices won't carry reports over.</div>
+   <div class="card joblist"><div class="sh"><span class="t">RECENT</span></div>${byDate.slice(0,6).map(row).join('')||'<div class="note">No reports yet.</div>'}</div>
+   ${JOBS.length>6?`<div class="card joblist"><div class="sh"><span class="t">ALL (by street)</span></div>${list.map(row).join('')}</div>`:''}`;
+  $('#topAddr').textContent='Maplewood TISH — Reports';
+}
+function createJob(){J=newJob();curUnit=0;JOBS.unshift(J);save();flush();go('addr')}
+function openJob(id){J=JOBS.find(j=>j.id===id);curUnit=0;LS.set(K_CUR,id);go('addr')}
+function copyJob(id){const s=JOBS.find(j=>j.id===id);const c=JSON.parse(JSON.stringify(s));c.id='j'+Date.now().toString(36);c.created=c.updated=Date.now();c.a.date=today();c.a.filed=false;JOBS.unshift(c);J=c;flush();go('addr')}
+function delJob(id){const j=JOBS.find(x=>x.id===id);if(!confirm('Delete report for '+(j.a.address||'(no address)')+'?'))return;JOBS=JOBS.filter(x=>x.id!==id);if(J&&J.id===id)J=null;flush();showJobs()}
+function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function fileBase(){return ((J.a.address||'Maplewood report').replace(/[\\/:*?"<>|]/g,'').trim()+' Maplewood TISH')}
+async function saveJobFile(){
+  if(!J)return;flush();const name=fileBase()+'.json';
+  const text=JSON.stringify({app:'maplewood-tish',v:1,saved:new Date().toISOString(),job:J},null,1);
+  try{const file=new File([text],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+  download(name,text);
+}
+function openJobFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{
+  const d=JSON.parse(rd.result);const j=d.job||(d.a&&d.units?d:null);if(!j){if(d.jobs){alert('That is a full backup — use Import instead.')}else alert('Not a Maplewood report file.');return}
+  const i=JOBS.findIndex(x=>x.id===j.id);
+  if(i>=0){if(!confirm('This report ('+(j.a.address||'')+') is already on this device. Replace it with the file version?')){J=JOBS[i];curUnit=0;go('addr');return}JOBS[i]=j}else JOBS.unshift(j);
+  J=j;curUnit=0;flush();go('addr')}catch(e){alert('Could not read that file.')}};rd.readAsText(f)}
+function exportAll(){flush();download('maplewood-tish-backup-'+today()+'.json',JSON.stringify({app:'maplewood-tish',v:1,jobs:JOBS,settings:SET,lib:LIB},null,1))}
+function importFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);const jobs=d.jobs||(d.job?[d.job]:(d.a?[d]:[]));let n=0;
+  jobs.forEach(j=>{const i=JOBS.findIndex(x=>x.id===j.id);if(i<0){JOBS.push(j);n++}else if((j.updated||0)>(JOBS[i].updated||0)){JOBS[i]=j;n++}});
+  if(d.lib&&confirm('Also import quick remarks from the backup?')){LIB=d.lib;LS.set(K_LIB,LIB)}
+  flush();alert(n+' report(s) imported.');showJobs()}catch(e){alert('Not a valid backup file.')}};rd.readAsText(f)}
+
+/* ---------- settings ---------- */
+function showSettings(){
+  curTab='settings';['jobs','edit','view'].forEach(s=>$('#'+s).classList.add('hide'));$('#settings').classList.remove('hide');
+  const libTxt=Object.keys(LIB).map(k=>LIB[k].map(t=>k+' | '+t.replace(/\n/g,'\\n')).join('\n')).join('\n');
+  $('#settings').innerHTML=`<div class="card"><div class="sh"><span class="t">EVALUATOR DEFAULTS (new reports)</span></div>
+   <div class="grid2"><label class="fld"><span>Evaluator</span><input id="s_ev" value="${esc(SET.evaluator)}"></label><label class="fld"><span>Phone</span><input id="s_ph" value="${esc(SET.phone)}"></label></div>
+   <div class="grid2"><label class="fld"><span>Default zip</span><input id="s_zip" value="${esc(SET.zip)}"></label><label class="fld"><span>Form revision text</span><input id="s_rev" value="${esc(SET.rev)}"></label></div>
+   <label class="fld" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="s_auto" style="width:auto" ${SET.autoRemark?'checked':''}> Open the remark box when I tap B, C or H</label>
+   <label class="fld" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="s_sig" style="width:auto" ${SET.useSig?'checked':''}> Print my signature on page 4</label>
+   <div class="fld"><span>Signature image</span><img src="${SET.sig||SIG_DEFAULT}" style="height:40px;background:#fff;border:1px solid #ccc"> <input type="file" accept="image/*" onchange="sigFile(this)" style="width:auto;border:0"></div></div>
+  <div class="card"><div class="sh"><span class="t">CITY HEADER (page 1)</span></div>
+   ${SET.hdr.map((l,i)=>`<label class="fld"><span>Line ${i+1}</span><input class="s_h" value="${esc(l)}"></label>`).join('')}
+   <label class="fld"><span>Complaints paragraph</span><textarea id="s_cmp" rows="3">${esc(SET.complaints)}</textarea></label></div>
+  <div class="card"><div class="sh"><span class="t">QUICK REMARKS</span></div>
+   <div class="note">One per line: <b>item | text</b>. Use <b>*</b> for remarks shown on every item, and <b>\\n</b> for a line break.</div>
+   <label class="fld"><textarea id="s_lib" rows="14" style="font-size:13px">${esc(libTxt)}</textarea></label>
+   <div class="note"><button class="pbtn red" onclick="if(confirm('Reset quick remarks to the starter list?')){LIB=JSON.parse(JSON.stringify(DEF_LIB));LS.set(K_LIB,LIB);showSettings()}">Reset quick remarks</button></div></div>
+  <div style="display:flex;gap:8px"><button class="pbtn" onclick="saveSettings()">Save settings</button><button class="pbtn sec" onclick="J?go(lastTab):showJobs()">Cancel</button></div>`;
+}
+function sigFile(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{SET.sig=rd.result;LS.set(K_SET,SET);showSettings()};rd.readAsDataURL(f)}
+function saveSettings(){
+  SET.evaluator=$('#s_ev').value;SET.phone=$('#s_ph').value;SET.zip=$('#s_zip').value;SET.rev=$('#s_rev').value;
+  SET.autoRemark=$('#s_auto').checked;SET.useSig=$('#s_sig').checked;
+  SET.hdr=[...document.querySelectorAll('.s_h')].map(i=>i.value);SET.complaints=$('#s_cmp').value;
+  const lib={};$('#s_lib').value.split('\n').forEach(l=>{const m=/^\s*([^|]+?)\s*\|\s*(.+)$/.exec(l);if(m){(lib[m[1]]=lib[m[1]]||[]).push(m[2].replace(/\\n/g,'\n'))}});
+  LIB=lib;LS.set(K_LIB,LIB);LS.set(K_SET,SET);alert('Saved');J?go(lastTab):showJobs();
+}
+
+/* =====================================================================
+   REPORT RENDERING
+   ===================================================================== */
+const LH=16, CW=318, CIND=13;
+const cv=document.createElement('canvas').getContext('2d');
+function wrapText(prefix,text,width){
+  cv.font='italic 13px Arial, Helvetica, sans-serif';
+  const out=[];const paras=String(text).split('\n');
+  paras.forEach((p,pi)=>{
+    const words=(pi===0&&prefix?prefix+' ':'').concat(p).split(/ +/).filter(w=>w!=='');
+    let line='',ind=out.length===0?0:CIND;
+    if(!words.length){out.push({t:'',i:ind});return}
+    words.forEach(w=>{const test=line?line+' '+w:w;
+      if(cv.measureText(test).width>(width-ind)&&line){out.push({t:line,i:ind});line=w;ind=CIND}else line=test});
+    if(line)out.push({t:line,i:ind});
+  });
+  return out;
+}
+function v(id,u){const r=peek(id,u);return ordVal(r.v)}
+function remLines(id,u){const r=peek(id,u);const out=[];ordRem(r.rem).forEach(m=>{if(!m.t.trim())return;
+  out.push(...wrapText(remLabel(id)+(m.r?' '+m.r:''),m.t.trim(),CW))});return out}
+function linesFor(ids,u){const o=[];ids.forEach(id=>o.push(...remLines(id,u)));return o}
+const pnum=(n,u)=>`<span class="pgn" data-k="n"></span>`;
+
+function row(num,label,val,opts={}){
+  return `<div class="r ${opts.cls||''}" ${opts.a?`data-a="${opts.a}"`:''} ${opts.style?`style="${opts.style}"`:''}><span class="n">${num}</span><span class="l">${label}</span>${opts.nodots?'<span style="flex:1"></span>':'<span class="d"></span>'}${val===null?'':`<span class="v bl">${esc(val)}</span>`}</div>`}
+function hrow(title,extra=''){return `<div class="r h"><span class="n"></span><span class="l">${title}</span>${extra}</div>`}
+function itemRow(id,u,a){const m=ITEM[id];return row(m.num,esc(printLabel(id)),v(id,u),{a})}
+function printLabel(id){return ITEM[id].label}
+function footer(top,date){return `<div class="ftr" style="top:${top}px">EVALUATOR:<span class="bl" style="width:300px;margin-left:4px">${esc(J.a.evaluator)}</span>
+  <span style="margin-left:6px">DATE:</span> <span class="bl" style="width:110px">${esc(date)}</span>
+  <span style="position:absolute;right:0;top:-2px;text-align:center;line-height:1.05">Page <span class="bl" style="width:20px" data-pg="cur"></span> of <span class="bl" style="width:20px" data-pg="tot"></span><br><span style="font-size:10.5px">${esc(SET.rev)}</span></span></div>`}
+function propAddr(extra){return `<div class="pa">Property Address: <span class="bl" style="width:520px;text-align:left;padding-left:6px">${esc(J.a.address)}${extra?'&nbsp;&nbsp;&nbsp;—&nbsp; '+esc(extra):''}</span></div>`}
+function unitLabel(u){if(J.units.length<2)return '';const n=J.units[u].name;return 'Unit '+(u+1)+(n?' ('+n+')':'')}
+
+function page1(){
+  const a=J.a,dt=fmtDate(a.date);
+  const ADDR=(a.address||'').toUpperCase();
+  const ls=Math.max(1,Math.min(9,Math.floor((400-ADDR.length*12)/Math.max(ADDR.length,1))));
+  const dw=['Single Family','Duplex','Townhouse','Condo'];
+  const mark=d=>`<span class="bl" style="width:30px">${a.dwelling===d?'X':''}</span>`;
+  const own=[a.own1,a.own2].filter(Boolean).join(', ');
+  return `<div class="pg p1" data-page="1">
+  <img src="${LEAF}" style="position:absolute;left:28px;top:12px;width:96px">
+  <div style="position:absolute;left:140px;width:500px;top:6px;text-align:center">
+    <div class="b" style="font-size:14px">${esc(SET.hdr[0])}</div>
+    ${SET.hdr.slice(1).filter(Boolean).map(l=>`<div class="b" style="font-size:11.5px">${esc(l)}</div>`).join('')}
+    <div class="b" style="font-size:21px;margin-top:${SET.hdr.length<4?14:6}px">Disclosure Report</div>
+    <div class="b" style="font-size:14.5px">Maplewood Truth-In-Sale of Housing</div>
+    <div style="font-size:12px">(Carefully read this entire report)</div></div>
+  <div class="sb" style="top:6px"><span class="b" style="font-size:11px">Address</span><span style="font-size:19px;letter-spacing:${ls}px;margin-top:10px">${esc(ADDR)}</span></div>
+  <div class="sb" style="top:478px"><span class="b" style="font-size:11px">Date</span><span style="font-size:19px;letter-spacing:7px;margin-top:10px">${esc(dt.replace(/\//g,' / '))}</span></div>
+  <div class="sb" style="top:740px"><span class="b" style="font-size:11px">page 1 of</span><span style="font-size:19px;margin-top:8px;border-left:1px solid #000;padding-left:2px;min-height:40px;text-align:center" data-pg="tot"></span></div>
+  <div style="position:absolute;left:22px;top:145px;width:712px;font-size:12px">
+   <p class="b" style="font-size:12px">THIS REPORT IS NOT A WARRANTY, BY THE CITY OF MAPLEWOOD OR EVALUATOR OF THE FUTURE USEFUL LIFE, OR THE FUTURE CONDITION OF ANY BUILDING COMPONENT OR FIXTURE.</p>
+   <p style="margin-top:7px"><span class="b">Notice:</span>&nbsp;&nbsp;&nbsp; A copy of this Report must be publicly displayed at the premises when the house is shown to prospective buyers, and a copy of this Report must be provided to the buyer prior to the time of signing a Purchase Agreement.</p>
+   <div class="bx" style="margin-top:6px;padding-top:10px;height:182px;position:relative">
+    <div style="display:flex;align-items:flex-end;height:26px"><span class="b" style="width:200px;font-size:13px">Address of Evaluated Dwelling:</span><span class="bl" style="width:420px;text-align:left;padding-left:6px">${esc(a.address)}</span></div>
+    <div style="display:flex;align-items:flex-end;height:26px"><span class="b" style="width:200px;font-size:13px">Owner's Name:</span><span class="bl" style="width:420px;text-align:left;padding-left:6px">${esc(a.owner)}</span></div>
+    <div style="display:flex;align-items:flex-end;height:26px"><span class="b" style="width:200px;font-size:13px">Owner's Address:</span><span class="bl" style="width:440px;text-align:center">${esc(own)}</span></div>
+    <div style="font-size:8.5px;margin-left:266px">include City &nbsp;&amp; State if <b>NOT</b> &nbsp;Maplewood, &nbsp;&nbsp; and <u>ALL</u> Zip codes, &nbsp;<b><u>EVEN IN</u></b>&nbsp; Maplewood</div>
+    <div style="display:flex;align-items:flex-end;height:22px;font-size:13px"><span class="b" style="width:190px">Type of Dwelling:</span>
+     <span class="b">Single Family</span>${mark('Single Family')}<span class="b" style="margin-left:22px">Duplex</span>&nbsp;${mark('Duplex')}<span class="b" style="margin-left:22px">Townhouse</span>&nbsp;${mark('Townhouse')}<span class="b" style="margin-left:22px">Condo*</span>&nbsp;${mark('Condo')}
+     ${a.dwelling==='Other'?`<span class="b" style="margin-left:12px">Other:</span>&nbsp;<span class="bl" style="min-width:60px;padding:0 4px">${esc(a.dwellOther)}</span>`:''}</div>
+    <p style="font-size:11.5px;margin-top:3px">*For condominium units, this evaluation includes only those items located within the residential units and does not include the common use areas, or other nonresidential areas of the structure.</p>
+    <div style="display:flex;gap:8px"><span class="b" style="font-size:11.5px">Comments:</span><span class="fv" style="white-space:pre-wrap;flex:1;font-size:12px;line-height:14px">${esc([a.comments,J.units.length>1?J.units.map((x,i)=>x.name?'Unit '+(i+1)+': '+x.name:'').filter(Boolean).join('   '):''].filter(Boolean).join('\n'))}</span></div>
+   </div>
+   <div class="bx" style="border-top:0;height:52px;display:flex;align-items:center"><span class="b" style="font-size:13px;width:280px">SELLER'S DISCLOSURE STATEMENT:</span><span style="font-size:13px">To be completed by the Seller or their representative.</span></div>
+   <div style="border:2.5px solid #000;padding:5px 6px 4px;display:flex;font-size:11.5px">
+     <div class="b" style="width:120px;font-size:19px;text-align:center;padding-top:22px;line-height:1.25">RATING<br>&nbsp;&nbsp;KEY:</div>
+     <div style="flex:1;line-height:1.3">
+      <div><b>"M"</b> &nbsp;= &nbsp;<b>M</b>eets minimum standards - the item conforms to minimum standards of maintenance</div>
+      <div><b>"B"</b> &nbsp;= &nbsp;<b>B</b>elow minimum standards - the item is below minimum standards</div>
+      <div style="display:flex"><span style="white-space:nowrap"><b>"C"</b> &nbsp;= &nbsp;</span><span><b>C</b>omments - the item cannot be adequately evaluated or it has some deficiency, but the deficiency is insufficient to make the item below minimum standards</span></div>
+      <div><b>"H"</b> &nbsp;= &nbsp;<b>H</b>azardous - the item in its present condition may endanger the health and safety of the occupant</div>
+      <div>Any item &nbsp;marked &nbsp;<b>"B", "C", or "H"</b> must have a written comment about the item. &nbsp;Additional comment sheets may be attached if needed.</div>
+      <div style="margin-top:2px"><b>"Y"</b> = <b>Y</b>es &nbsp;&nbsp;&nbsp;&nbsp;<b>"N"</b> &nbsp;= &nbsp;<b>N</b>o &nbsp;&nbsp;&nbsp;<b>"NV"</b> &nbsp;= &nbsp;Not Visible/Viewed &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"NA"</b> &nbsp;= &nbsp;Not Applicable</div>
+     </div></div>
+   <div class="bx" style="border-top:0;padding:10px 6px 8px;font-size:12px">
+     <div class="b" style="margin-bottom:10px">This Report:</div>
+     <ol>
+      <li>is intended to provide basic information to the home buyer and seller prior to the time of sale. &nbsp;Minimum standards for this report are as contained in the Maplewood City Code.</li>
+      <li>is not warranty, by the City of Maplewood, of the condition of the building or any building component, nor of the accuracy of this report.</li>
+      <li>covers only the items listed on the form and only those items visible at the time of the evaluation. &nbsp;The Evaluator is not required to ignite the heating plant, use a ladder to observe the condition of the roofing, disassemble items or evaluate inaccessible areas.</li>
+      <li>may be based upon different standards than the lender, Federal Housing Administration (FHA) or Veterans Administration (VA).</li>
+      <li>is valid for one year from the date of issue and only for the owner named on this report.</li></ol>
+     <p class="b" style="margin:4px 0 8px 28px">Questions about this report should be directed to the evaluator, seller of the seller's agent.</p>
+     <p class="b" style="margin:0 0 0 28px">${esc(SET.complaints)}</p>
+   </div>
+   <div style="margin-top:6px;font-size:12.5px;white-space:nowrap">EVALUATOR:<span class="bl" style="width:240px">${esc(a.evaluator)}</span> PHONE:<span class="bl" style="width:96px">${esc(a.evalPhone)}</span> DATE:<span class="bl" style="width:110px">${esc(dt)}</span> <span style="font-size:11px">${esc(SET.rev)}</span></div>
+  </div></div>`;
+}
+function page2(){
+  const e=J.elec,h=J.h17,g=J.h18,dt=fmtDate(J.a.date);
+  const amp=a=>`<span class="bl" style="width:${a==='other'?44:26}px">${a==='other'?esc([e.amps.includes('200')?'200':'',e.ampsOther].filter(Boolean).join(', ')):(e.amps.includes(a)?'X':'')}</span>`;
+  const svc=e.svcMore||e.svc||'';
+  const nh=h.nMore||h.n||'';
+  const L=`<div class="lc" style="top:118px">
+   <div class="r" style="height:20px"><span style="flex:1;text-align:right;padding-right:16px">See Page 1 for Rating Key</span></div>
+   ${hrow('BASEMENT/CELLAR')}
+   ${['1','2','3','4','5','6'].map((id,i)=>itemRow(id,0,i===0?'bsmt':null)).join('')}
+   <div style="height:44px"></div>
+   ${row('',`<b style="font-size:13.5px">ELECTRICAL SERVICE(S)</b> # of Services`,svc,{a:'elec'})}
+   ${row('7.','Service size:',null,{nodots:1})}
+   <div class="r"><span class="n"></span>Amps: &nbsp;30 ${amp('30')} 60 ${amp('60')} 100 ${amp('100')} 150 ${amp('150')} Other ${amp('other')}</div>
+   <div class="r"><span class="n"></span>Volts: &nbsp;115 <span class="bl" style="width:30px">${e.volts==='115'?'X':''}</span>&nbsp;&nbsp; 115/220 <span class="bl" style="width:30px">${e.volts==='115/230'?'X':''}</span></div>
+   ${hrow('BASEMENT ONLY:')}
+   ${itemRow('8',0)}${itemRow('9',0)}
+   <div style="height:44px"></div>
+   ${hrow('PLUMBING SYSTEM')}
+   ${['10','11','12','13','14','15','16'].map((id,i)=>itemRow(id,0,i===0?'plumb':null)).join('')}
+   <div style="height:44px"></div>
+   ${row('',`<b style="font-size:13.5px">HEATING SYSTEM(S)</b>&nbsp; <b># of</b>`,nh)}
+   <div class="r" data-a="h17"><span class="n">17.</span>Heating plant(s): &nbsp;Type: <span class="bl" style="width:42px">${esc(h.typeTxt)}</span>&nbsp; Fuel: <span class="bl" style="width:46px">${esc(h.fuelTxt)}</span></div>
+   ${itemRow('17a',0)}${itemRow('17b',0)}${itemRow('17c',0)}
+   <div class="b" style="font-size:11px;margin:12px 0 0 0;line-height:1.5;width:340px">The Evaluator is not required to ignite the heating plant(s), except during heating season, between October 15 and April 15.</div>
+   <div style="height:20px"></div>
+   <div class="r" data-a="h18"><span class="n">18.</span>Additional heating unit(s) Type: <span class="bl" style="width:42px">${esc(g.typeTxt)}</span>&nbsp; Fuel: <span class="bl" style="width:46px">${esc(g.fuelTxt)}</span></div>
+   ${itemRow('18a',0)}${itemRow('18b',0)}${itemRow('18c',0)}
+   <div style="height:30px"></div>
+   ${row('19.','<b>ADDITIONAL COMMENTS (1 through 18)</b>',v('19'),{a:'a19',nodots:1})}
+  </div>`;
+  return {html:`<div class="pg">${propAddr()}
+   <div class="ch" style="left:382px;top:118px;width:330px"><b><u>Item #</u></b><b style="margin-left:36px"><u>Comments</u></b><div style="font-size:12px;margin:5px 0 0 76px">Specify location(s), where necessary</div></div>
+   ${L}${footer(938,dt)}</div>`,
+   blocks:[['bsmt',['1','2','3','4','5','6']],['elec',['7','8','9']],['plumb',['10','11','12','13','14','15','16']],['h17',['17','17a','17b','17c']],['h18',['18','18a','18b','18c']],['a19',['19']]],
+   top:136,bottom:930,u:0};
+}
+function page3(u){
+  const dt=fmtDate(J.a.date);
+  const sec=(t,ids,a)=>hrow(t)+ids.map((id,i)=>itemRow(id,u,i===0?a:null)).join('');
+  const L=`<div class="lc pg3" style="top:76px">
+   ${sec('KITCHEN',['20','21','22','23','24','25','26','27'],'kit')}
+   ${sec('LIVING AND DINING ROOM(S)',['28','29','30','31','32','33'],'lr')}
+   ${sec('HALLWAYS, STAIRS AND ENTRIES',['34','35','36','37','38','39'],'hall')}
+   ${row('','Properly located',v('39loc',u))}${row('','Hard-wired',v('39hw',u))}
+   ${sec('BATHROOM(S)',['40','41','42','43','44','45','46','47'],'bath')}
+   ${sec('SLEEPING ROOM(S)',['48','49','50','51','52','53'],'sleep')}
+   ${sec('ENCLOSED PORCHES AND OTHER ROOMS',['54','55','56','57'],'porch')}
+   ${hrow('ATTIC SPACE',' <span style="font-weight:normal;margin-left:8px">(Visible Areas)</span>')}${['58','59','60','61'].map((id,i)=>itemRow(id,u,i===0?'attic':null)).join('')}
+   <div style="height:14px"></div>
+   ${row('62.','<b>ADDITIONAL COMMENTS (20 through 61)</b>',v('62',u),{a:'a62',nodots:1})}
+  </div>`;
+  return {html:`<div class="pg">${propAddr(unitLabel(u))}
+    <div class="ch" style="left:212px;top:42px;width:560px">See Page 1 for Rating Key<b style="margin-left:22px"><u>Item #</u></b><b style="margin-left:36px"><u>Comments</u></b></div>
+    <div class="ch" style="left:0;right:0;top:58px;text-align:center;font-size:12px">Where there are multiple rooms to a category, the Evaluator must specify the room to which a Comment is related.</div>
+    ${L}${footer(950,dt)}</div>`,
+   blocks:[['kit',['20','21','22','23','24','25','26','27']],['lr',['28','29','30','31','32','33']],['hall',['34','35','36','37','38','39']],['bath',['40','41','42','43','44','45','46','47']],['sleep',['48','49','50','51','52','53']],['porch',['54','55','56','57']],['attic',['58','59','60','61']],['a62',['62']]],
+   top:76,bottom:948,u};
+}
+function page4(){
+  const dt=fmtDate(J.a.date),f=J.fire,I=J.ins;
+  const sig=SET.useSig?`<img src="${SET.sig||SIG_DEFAULT}" style="position:absolute;left:40px;top:-30px;height:46px">`:'';
+  const insRow=(id,lbl)=>`<div class="r"><span class="n">${id}.</span><span class="l" style="width:116px">${lbl}</span><span class="bl" style="width:34px">${esc(v(id))}</span>&nbsp;&nbsp;<span class="bl" style="width:90px">${esc(I[id].type)}</span>&nbsp;&nbsp;&nbsp;<span class="bl" style="width:46px">${esc(I[id].in)}</span></div>`;
+  const L=`<div class="lc" style="top:40px">
+   <div class="r" style="height:16px"><span style="flex:1;text-align:right;padding-right:16px">See Page 1 for Rating Key</span></div>
+   ${hrow('EXTERIOR',' <span style="font-weight:normal;margin-left:8px">(Visible Areas)</span>')}
+   ${['63','64','65','66','67','68','69','70','71','72','73','74'].map((id,i)=>itemRow(id,0,i===0?'ext':null)).join('')}
+   <div style="height:16px"></div>
+   ${hrow('GARAGE')}
+   ${['75','76','77','78','79','80'].map((id,i)=>itemRow(id,0,i===0?'gar':null)).join('')}
+   ${row('81.','<b>ADDITIONAL COMMENTS (62 through 80)</b>',v('81'),{a:'a81',nodots:1})}
+   <div style="height:12px"></div>
+   ${row('',`<b style="font-size:13.5px">FIREPLACE/WOODSTOVES</b>&nbsp; <b># of</b>`,f.nMore||f.n||'',{a:'fire'})}
+   ${itemRow('82',0)}${itemRow('83',0)}${itemRow('84',0)}
+  </div>
+  <div style="position:absolute;left:18px;top:494px;width:342px;border-top:2px solid #000"></div>
+  <div style="position:absolute;left:22px;top:502px;width:340px;font-size:12.5px" data-a="ins">
+   <div><b>SUPPLEMENTAL INFORMATION</b> No determination is made</div>
+   <div>whether items meet minimum standards &nbsp;&nbsp;&nbsp; <b>(Y/N, NA, NV, <u>only</u>)</b></div>
+   <div style="display:flex;font-size:12px"><b style="margin-left:24px;width:110px">INSULATION</b><span style="width:52px">Y/N</span><span style="width:80px">Type</span><span>Inches/Depth</span></div>
+   ${insRow('85','Attic Insulation')}${insRow('86','Foundation Insulation')}${insRow('87','Kneewall Insulation')}${insRow('88','Rim Joist Insulation')}
+   <div style="height:14px"></div>
+   <div class="r" data-a="a89"><span class="n">89.</span><b>ADDITIONAL COMMENTS (81 through 88)</b>&nbsp;<span class="bl" style="width:52px">${esc(v('89'))}</span></div>
+  </div>
+  <div style="position:absolute;left:22px;top:668px;width:712px;font-size:12px;font-weight:bold;line-height:1.3">I hereby certify that the above report is made in compliance with the Maplewood City Code, and that I have utilized the care and diligence, reasonable and ordinary, for meeting the certification standards prescribed by the Truth-in-Sale of Housing Ordinance Article XII of Chapter 9. &nbsp;I have found no instance of non-compliance with the items listed above as of the date of this report, except those designated herein.</div>
+  <div style="position:absolute;left:22px;top:772px;width:740px;font-size:12px">
+    <div style="position:relative;display:flex;align-items:flex-end">${sig}<span style="display:inline-block;width:320px;border-bottom:1px solid #000;height:14px"></span>
+     <span class="bl" style="width:120px;margin-left:30px">${esc(J.a.evalPhone)}</span><span class="bl" style="width:110px;margin-left:14px">${esc(dt)}</span>
+     <span style="margin-left:14px;text-align:center;line-height:1.05">Page <span class="bl" style="width:20px" data-pg="cur"></span> of <span class="bl" style="width:20px" data-pg="tot"></span><br><span style="font-size:10.5px">${esc(SET.rev)}</span></span></div>
+    <div style="display:flex"><span style="width:320px;padding-left:40px">Evaluator Signature</span><span style="width:150px;margin-left:30px;text-align:center">Phone Number</span><span style="width:110px;text-align:center">Date</span></div>
+    <div style="margin-top:6px"><b>Printed Name:</b> <span class="bl" style="width:230px;margin-left:12px">${esc(J.a.evaluator)}</span></div>
+  </div>
+  <div style="position:absolute;left:8px;top:852px;width:744px;border:1px solid #000;padding:2px 6px 4px 6px;font-size:11.5px;font-weight:bold;line-height:1.25">
+   <div style="text-align:center">IMPORTANT NOTICES</div>
+   <div style="display:flex"><span style="width:28px">1.</span><span>Rainleaders connected to the sanitary sewer system must be disconnected.</span></div>
+   <div style="display:flex"><span style="width:28px;flex:0 0 28px">2.</span><span>Any house built before 1950 may have lead paint on/in it. &nbsp;If children eat lead paint, they can be poisoned. &nbsp;For more information call the Environmental Health Officer, (651) 249-2300.</span></div>
+   <div style="display:flex"><span style="width:28px;flex:0 0 28px">3.</span><span>The City of Maplewood or the Evaluator are not responsible for the determination of the presence of airborne particles such as asbestos, noxious gases, such as radon or other conditions of the air quality that may be present, nor the conditions which may cause the above.</span></div>
+   <div style="display:flex"><span style="width:28px;flex:0 0 28px">4.</span><span>Automatic garage door openers should reverse upon striking an object. &nbsp;If it does not reverse, it poses a serious hazard and should be repaired or replaced immediately.</span></div>
+  </div>`;
+  return {html:`<div class="pg">${propAddr()}
+   <div class="ch" style="left:382px;top:40px;width:330px"><b><u>Item #</u></b><b style="margin-left:36px"><u>Comments</u></b></div>
+   ${L}</div>`,
+   blocks:[['ext',['63','64','65','66','67','68','69','70','71','72','73','74']],['gar',['75','76','77','78','79','80']],['a81',['81']],['fire',['82','83','84']],['ins',['85','86','87','88']],['a89',['89']]],
+   top:56,bottom:660,u:0};
+}
+function contPage(){return {html:`<div class="pg">${propAddr()}
+   <div class="ch" style="left:30px;top:52px;font-size:14px"><b>ADDITIONAL COMMENTS (continued)</b></div>
+   <div class="ftr" style="top:950px">EVALUATOR:<span class="bl" style="width:300px;margin-left:4px">${esc(J.a.evaluator)}</span>
+   <span style="margin-left:6px">DATE:</span> <span class="bl" style="width:110px">${esc(fmtDate(J.a.date))}</span>
+   <span style="position:absolute;right:0;top:-2px">Page <span class="bl" style="width:20px" data-pg="cur"></span> of <span class="bl" style="width:20px" data-pg="tot"></span></span></div></div>`,
+   blocks:[],top:84,bottom:930,u:0,left:40,cont:1}}
+
+function flowPage(pgEl,spec,carry){
+  const left=spec.left||382;
+  const anchorY=a=>{const e=pgEl.querySelector(`[data-a="${a}"]`);if(!e)return spec.top;let y=0,n=e;while(n&&n!==pgEl){y+=n.offsetTop;n=n.offsetParent}return y};
+  const blocks=[];if(carry.length)blocks.push({y:spec.top,lines:carry});
+  spec.blocks.forEach(([a,ids])=>{const lines=linesFor(ids,spec.u);if(lines.length)blocks.push({y:Math.max(spec.top,anchorY(a)),lines})});
+  let y=spec.top,html='',rest=[];
+  for(let bi=0;bi<blocks.length;bi++){const b=blocks[bi];
+    if(rest.length){rest.push(...b.lines);continue}
+    y=Math.max(y,b.y);
+    for(let li=0;li<b.lines.length;li++){
+      if(y+LH>spec.bottom){rest=b.lines.slice(li);break}
+      const L=b.lines[li];html+=`<div class="cl" style="left:${left+L.i}px;top:${y}px">${esc(L.t)}</div>`;y+=LH;
+    }
+  }
+  if(rest.length&&rest[0].i)rest=rest.slice(); // keep hanging indents
+  pgEl.insertAdjacentHTML('beforeend',html);
+  return rest;
+}
+function renderReport(){
+  const z=$('#reportZoom');z.innerHTML='';
+  const specs=[{html:page1(),blocks:[],none:1},page2()];
+  J.units.forEach((_,u)=>specs.push(page3(u)));
+  specs.push(page4());
+  let carry=[],prevU=null;
+  specs.forEach(s=>{z.insertAdjacentHTML('beforeend',s.html);const el=z.lastElementChild;if(s.none)return;
+    const isUnit=s.blocks.length&&s.blocks[0][0]==='kit';
+    if(carry.length&&J.units.length>1&&prevU!==null)carry=[{t:'(continued from '+unitLabel(prevU)+')',i:0},...carry];
+    carry=flowPage(el,s,carry);prevU=isUnit?s.u:null});
+  let guard=0;while(carry.length&&guard++<10){const s=contPage();z.insertAdjacentHTML('beforeend',s.html);carry=flowPage(z.lastElementChild,s,carry)}
+  const pages=[...z.querySelectorAll('.pg')];
+  pages.forEach((p,i)=>{p.querySelectorAll('[data-pg="cur"]').forEach(e=>e.textContent=i+1);p.querySelectorAll('[data-pg="tot"]').forEach(e=>e.textContent=pages.length)});
+  fitZoom();
+  // checks
+  const msgs=[];
+  const missing=[];
+  SECTIONS.forEach(s=>s.items.forEach(([id])=>{if(id==='39loc'||id==='39hw')return;
+    const us=s.unit?J.units.map((_,i)=>i):[0];us.forEach(u=>{if(needsRemark(id,u))missing.push(id+(s.unit&&J.units.length>1?' (unit '+(u+1)+')':''))})}));
+  const blanks=[];SECTIONS.forEach(s=>s.items.forEach(([id])=>{if(['19','62','81','89','39hw','17b','18b'].includes(id))return;if(id.startsWith('18')&&!J.h18.typeTxt&&!J.h18.fuelTxt)return;
+    const us=s.unit?J.units.map((_,i)=>i):[0];us.forEach(u=>{if(!v(id,u))blanks.push(id+(s.unit&&J.units.length>1?'/u'+(u+1):''))})}));
+  if(!J.a.address)msgs.push('No property address yet.');
+  if(missing.length)msgs.push('<b>B / C / H without a written comment:</b> '+missing.join(', '));
+  if(blanks.length)msgs.push('<b>Not rated yet:</b> '+blanks.join(', '));
+  $('#viewMsgs').innerHTML=msgs.length?`<div class="warn">${msgs.join('<br>')}</div>`:'';
+}
+function fitZoom(){const w=$('#reportWrap');const avail=Math.min($('#main').clientWidth-20,816);const s=avail/816;const z=$('#reportZoom');
+  z.style.transform=`scale(${s})`;w.style.width=(816*s)+'px';w.style.height=(z.scrollHeight*s)+'px'}
+window.addEventListener('resize',()=>{if(curTab==='view')fitZoom()});
+function doPrint(){if(!J)return;if(curTab!=='view')go('view');else renderReport();const t=document.title;document.title=fileBase();setTimeout(()=>{window.print();setTimeout(()=>document.title=t,1500)},300)}
+window.addEventListener('beforeprint',()=>{if(J&&curTab==='view'){}});
+
+/* ---------- boot ---------- */
+(function boot(){
+  document.body.insertAdjacentHTML('beforeend',`<datalist id="insTypes"><option>Cellulose</option><option>Fiberglass batts</option><option>Fiberglass loose fill</option><option>Rock wool</option><option>Vermiculite</option><option>Rigid foam</option><option>Spray foam</option></datalist>`);
+  const cur=LS.get(K_CUR,null);J=JOBS.find(j=>j.id===cur)||null;
+  if(J)go('addr');else showJobs();
+})();
+</script>
+</body>
+</html>
