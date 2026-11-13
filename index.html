@@ -9,83 +9,83 @@
 <link rel="icon" type="image/png" href="icon-maplewood.png">
 <meta name="apple-mobile-web-app-title" content="Maplewood">
 <style>
-:root{--teal:#3fd0d4;--navy:#1b2a8a;--ink:#1d2433;--bg:#eef3f6;--card:#fff;--line:#c9d3dc;--red:#c62828;--sel:#1b2a8a}
+:root{--teal:#eadfce;--navy:#6b4f36;--ink:#2e2721;--bg:#f6f1ea;--card:#fffdf9;--line:#ddd2c3;--red:#b23a2a;--sel:#8a5a3b;--top:#3b322a}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
 button{font:inherit;cursor:pointer}
 input,select,textarea{font:inherit;font-size:16px}
 /* ---------- app chrome ---------- */
-.top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:env(safe-area-inset-top) 0 0}
+.top{position:sticky;top:0;z-index:20;background:var(--top);color:#fff;padding:env(safe-area-inset-top) 0 0}
 .top .bar{display:flex;align-items:center;gap:8px;padding:8px 10px}
 .top .addr{flex:1;min-width:0;font-weight:600;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .tb{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:14px}
-.tabs{display:flex;overflow-x:auto;background:#d9e2ea;border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs{display:flex;overflow-x:auto;background:#ece3d6;border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:0 0 auto;border:0;background:none;padding:10px 12px;color:var(--navy);font-weight:600;font-size:14px;border-bottom:3px solid transparent;white-space:nowrap}
 .tabs button.on{border-bottom-color:var(--navy);background:#fff}
 main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 12px;overflow:hidden}
-.sh{display:flex;align-items:center;gap:6px;background:var(--teal);color:#06205e;font-weight:700;padding:6px 10px;font-size:13.5px;letter-spacing:.2px}
+.sh{display:flex;align-items:center;gap:6px;background:var(--teal);color:#4a3726;font-weight:700;padding:6px 10px;font-size:13.5px;letter-spacing:.2px}
 .sh .t{flex:1}
-.sh button{border:1px solid #0d6e74;background:#e9fbfc;color:var(--navy);border-radius:6px;padding:3px 8px;font-size:12.5px;font-weight:600}
-.it{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:7px 10px;border-top:1px solid #e3e9ee;align-items:center}
+.sh button{border:1px solid #b9a68d;background:#fffaf2;color:var(--navy);border-radius:6px;padding:3px 8px;font-size:12.5px;font-weight:600}
+.it{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:7px 10px;border-top:1px solid #eee6da;align-items:center}
 .it:first-of-type{border-top:0}
 .it .il{grid-column:1/2;font-size:14.5px}
 .it .il b{color:var(--navy);margin-right:3px}
 .it .iv{grid-column:2/3;grid-row:1/3;min-width:62px;height:44px;border:1.5px solid var(--navy);border-radius:7px;background:#fff;font-style:italic;font-weight:600;color:#000;position:relative;padding:0 6px}
 .it .iv .rc{position:absolute;top:-7px;right:-7px;background:var(--navy);color:#fff;border-radius:10px;font-size:11px;font-style:normal;min-width:18px;height:18px;line-height:18px;padding:0 4px}
-.it .iv.need{border-color:var(--red);box-shadow:0 0 0 2px #f6c8c8}
+.it .iv.need{border-color:var(--red);box-shadow:0 0 0 2px #f0cbc2}
 .it .iv.need .rc{background:var(--red)}
 .btns{display:flex;flex-wrap:wrap;gap:4px}
-.btns button{min-width:34px;height:36px;padding:0 4px;border:1px solid #9aa7b4;border-radius:6px;background:#f6f8fa;color:#222;font-weight:600;font-size:14px}
+.btns button{min-width:34px;height:36px;padding:0 4px;border:1px solid #b5a794;border-radius:6px;background:#faf6ef;color:#222;font-weight:600;font-size:14px}
 .btns button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
 .sub .il{padding-left:22px;color:#444}
-.spec{padding:8px 10px;border-top:1px solid #e3e9ee;font-size:14px}
+.spec{padding:8px 10px;border-top:1px solid #eee6da;font-size:14px}
 .spec .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:4px 0}
 .spec .lab{font-weight:600;color:var(--navy);min-width:62px}
-.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #9aa7b4;border-radius:16px;padding:5px 10px;background:#f6f8fa}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #b5a794;border-radius:16px;padding:5px 10px;background:#faf6ef}
 .chip input{margin:0}
-.chip.on{background:#dfe6ff;border-color:var(--sel)}
-.spec input[type=text],.spec input:not([type]){width:90px;padding:5px 7px;border:1px solid #9aa7b4;border-radius:6px}
-.note{font-size:12.5px;color:#4a5562;padding:6px 10px}
+.chip.on{background:#f1e3d2;border-color:var(--sel)}
+.spec input[type=text],.spec input:not([type]){width:90px;padding:5px 7px;border:1px solid #b5a794;border-radius:6px}
+.note{font-size:12.5px;color:#6b5d4f;padding:6px 10px}
 .fld{display:block;padding:6px 10px}
 .fld>span{display:block;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:3px}
-.fld input,.fld select,.fld textarea{width:100%;padding:8px 9px;border:1px solid #9aa7b4;border-radius:7px;background:#fff}
+.fld input,.fld select,.fld textarea{width:100%;padding:8px 9px;border:1px solid #b5a794;border-radius:7px;background:#fff}
 .grid2{display:grid;grid-template-columns:1fr 1fr}
 @media(max-width:520px){.grid2{grid-template-columns:1fr}}
 .unitbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:12px}
 .unitbar b{color:var(--navy)}
-.unitbar .ub{border:1px solid #9aa7b4;background:#f6f8fa;border-radius:7px;padding:6px 12px;font-weight:700}
+.unitbar .ub{border:1px solid #b5a794;background:#faf6ef;border-radius:7px;padding:6px 12px;font-weight:700}
 .unitbar .ub.on{background:var(--sel);color:#fff;border-color:var(--sel)}
-.unitbar input{flex:1;min-width:120px;padding:6px 8px;border:1px solid #9aa7b4;border-radius:6px}
+.unitbar input{flex:1;min-width:120px;padding:6px 8px;border:1px solid #b5a794;border-radius:6px}
 .pbtn{display:inline-block;border:0;border-radius:8px;padding:10px 16px;background:var(--navy);color:#fff;font-weight:600}
 .pbtn.sec{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
 .pbtn.red{background:#fff;color:var(--red);border:1.5px solid var(--red)}
-.pager{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;gap:8px;justify-content:center;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(238,243,246,.96);border-top:1px solid var(--line)}
+.pager{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;gap:8px;justify-content:center;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(246,241,234,.96);border-top:1px solid var(--line)}
 .pager button{flex:1;max-width:200px}
-.joblist .job{display:flex;gap:10px;align-items:center;padding:10px;border-top:1px solid #e3e9ee}
+.joblist .job{display:flex;gap:10px;align-items:center;padding:10px;border-top:1px solid #eee6da}
 .joblist .job:first-child{border-top:0}
 .joblist .job .jt{flex:1;min-width:0}
 .joblist .job .jt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.joblist .job .jt small{color:#5a6673}
-.joblist .job button{border:1px solid #9aa7b4;background:#f6f8fa;border-radius:7px;padding:6px 10px;font-size:13px}
+.joblist .job .jt small{color:#7a6b5c}
+.joblist .job button{border:1px solid #b5a794;background:#faf6ef;border-radius:7px;padding:6px 10px;font-size:13px}
 .warn{background:#fff4e5;border:1px solid #f0c27a;border-radius:8px;padding:8px 10px;font-size:13.5px;margin-bottom:10px}
 .warn b{color:#8a4b00}
 /* modal */
-.mod{position:fixed;inset:0;z-index:50;background:rgba(10,20,40,.45);display:none;align-items:flex-end;justify-content:center}
+.mod{position:fixed;inset:0;z-index:50;background:rgba(40,30,20,.45);display:none;align-items:flex-end;justify-content:center}
 .mod.on{display:flex}
 .mod .box{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:14px 14px 0 0;padding:12px 12px calc(14px + env(safe-area-inset-bottom))}
 @media(min-width:700px){.mod{align-items:center}.mod .box{border-radius:14px}}
 .mod h3{margin:2px 0 8px;font-size:16px;color:var(--navy)}
-.rem{border:1px solid var(--line);border-radius:9px;padding:8px;margin:8px 0;background:#fafcfd}
+.rem{border:1px solid var(--line);border-radius:9px;padding:8px;margin:8px 0;background:#fdfaf5}
 .rem .rr{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
-.rem .rr button{min-width:36px;height:32px;border:1px solid #9aa7b4;border-radius:6px;background:#fff;font-weight:700}
+.rem .rr button{min-width:36px;height:32px;border:1px solid #b5a794;border-radius:6px;background:#fff;font-weight:700}
 .rem .rr button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
 .rem .rr .sp{flex:1}
-.rem textarea{width:100%;min-height:62px;padding:7px;border:1px solid #9aa7b4;border-radius:7px;resize:vertical}
+.rem textarea{width:100%;min-height:62px;padding:7px;border:1px solid #b5a794;border-radius:7px;resize:vertical}
 .canned{display:flex;flex-direction:column;gap:5px;margin:6px 0 10px}
-.canned button{text-align:left;border:1px solid #c9d3dc;background:#f3f7fb;border-radius:7px;padding:8px 9px;font-size:14px;white-space:pre-line}
-.small{font-size:12.5px;color:#5a6673}
+.canned button{text-align:left;border:1px solid #c9d3dc;background:#faf5ec;border-radius:7px;padding:8px 9px;font-size:14px;white-space:pre-line}
+.small{font-size:12.5px;color:#7a6b5c}
 /* report preview */
 #reportWrap{overflow:hidden;margin:0 auto}
 #reportZoom{transform-origin:0 0;width:816px}
@@ -164,8 +164,11 @@ main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='1.5', APP_DATE='Nov 12, 2026';
+const APP_VER='1.8', APP_DATE='Nov 13, 2026';
 const CHANGES=[
+ ['1.8','Nov 13, 2026','Export comments: pick which comments to include'],
+ ['1.7','Nov 13, 2026','Warm neutral colors; removed example text in comment box'],
+ ['1.6','Nov 13, 2026','Export / Import comments (canned remarks file)'],
  ['1.5','Nov 12, 2026','Starter remarks no longer include locations'],
  ['1.4','Nov 12, 2026','Quick remarks sorted by H / B / C; type your own and save to quick list'],
  ['1.3','Nov 12, 2026','Blue Sky home-screen icon'],
@@ -223,6 +226,10 @@ if(!LIB){const old=LS.get(K_LIB,null);LIB=old?normLib(old):defLib();
   if(old){Object.keys(DEF_LIB).forEach(k=>{LIB[k]=LIB[k]||[];DEF_LIB[k].forEach(([r,t])=>{if(!LIB[k].some(x=>x.t===t))LIB[k].push({r,t})})})}
   LS.set(K_LIB2,LIB)}
 const saveLib=()=>LS.set(K_LIB2,LIB);
+let LIBDEL=LS.get('mwtish_libdel',[]);   // starter remarks you deleted, so updates don't bring them back
+function mergeDefaults(){let n=0;Object.keys(DEF_LIB).forEach(k=>{LIB[k]=LIB[k]||[];DEF_LIB[k].forEach(([r,t])=>{
+  if(LIBDEL.includes(k+'|'+t))return;if(!LIB[k].some(x=>x.t===t)){LIB[k].push({r,t});n++}})});if(n)saveLib();return n}
+(function(){if(LS.get('mwtish_libmerged','')!==APP_VER){mergeDefaults();LS.set('mwtish_libmerged',APP_VER)}})();
 // one-time: drop locations from starter remarks (add location yourself when needed)
 (function(){if(LS.get('mwtish_libfix',0)>=1)return;const fix={'CO and heat exchanger(s) not tested.\nFurnace - Basement':'CO and heat exchanger(s) not tested.','CO and heat exchanger(s) not tested.\nHeater - Garage':'CO and heat exchanger(s) not tested.','Receptacle(s) not GFCI protected, 1st floor':'Receptacle(s) not GFCI protected'};
   Object.keys(LIB).forEach(k=>{LIB[k].forEach(x=>{if(fix[x.t])x.t=fix[x.t]});LIB[k]=LIB[k].filter((x,i,a)=>a.findIndex(y=>y.t===x.t&&y.r===x.r)===i)});saveLib();LS.set('mwtish_libfix',1)})();
@@ -355,7 +362,7 @@ function itemHTML(id,isIns){
   const sub=id==='39loc'||id==='39hw';
   const btns=KIND[m.kind].map(v=>`<button class="${(r.v||'').split(',').includes(v)?'on':''}" onclick="rate('${id}','${v}')">${v}</button>`).join('');
   let extra='';
-  if(isIns){const x=J.ins[id];extra=`<div style="display:flex;gap:6px;margin-top:2px"><input list="insTypes" placeholder="Type" value="${esc(x.type)}" style="flex:1;min-width:0;padding:6px;border:1px solid #9aa7b4;border-radius:6px" oninput="J.ins['${id}'].type=this.value;save()"><input placeholder="Inches" inputmode="decimal" value="${esc(x.in)}" style="width:76px;padding:6px;border:1px solid #9aa7b4;border-radius:6px" oninput="J.ins['${id}'].in=this.value;save()"></div>`}
+  if(isIns){const x=J.ins[id];extra=`<div style="display:flex;gap:6px;margin-top:2px"><input list="insTypes" placeholder="Type" value="${esc(x.type)}" style="flex:1;min-width:0;padding:6px;border:1px solid #b5a794;border-radius:6px" oninput="J.ins['${id}'].type=this.value;save()"><input placeholder="Inches" inputmode="decimal" value="${esc(x.in)}" style="width:76px;padding:6px;border:1px solid #b5a794;border-radius:6px" oninput="J.ins['${id}'].in=this.value;save()"></div>`}
   const need=needsRemark(id);
   return `<div class="it ${sub?'sub':''}" id="it_${id}"><div class="il">${m.num?'<b>'+(/^[abc]\.$/.test(m.num)?id.toUpperCase()+'.':m.num)+'</b>':''}${esc(m.label)}${extra}</div>
    <button class="iv ${need?'need':''}" onclick="openRem('${rk}')">${esc(ordVal(r.v))||'&nbsp;'}${nrem&&!sub?`<span class="rc">${nrem}</span>`:''}${sub?'':'' }</button>
@@ -457,7 +464,7 @@ function openRem(id,newRating){
   drawMod(-1);
   $('#mod').classList.add('on');
 }
-function closeMod(){$('#mod').classList.remove('on');const id=modId;modId=null;
+function closeMod(){$('#mod').classList.remove('on');const id=modId;modId=null;if(!id)return;
   const r=peek(id);r.rem=ordRem((r.rem||[]).filter(m=>m.t.trim()||m.keep));r.v=ordVal(r.v);save();
   if(curTab==='view')renderReport(); else { refreshItem(id); if(id==='39'){refreshItem('39loc');refreshItem('39hw')} } }
 const RNAME={H:'Hazard',B:'Below min.',C:'Comment'};
@@ -484,9 +491,9 @@ function drawMod(focusIdx){
    <div class="btns" style="margin-bottom:8px">${['H','B','C','All'].map(f=>`<button class="${modFilter===f?'on':''}" style="padding:0 10px" onclick="modFilter='${f}';drawMod()">${f==='All'?'All':f+' '+RNAME[f]} <span style="opacity:.7">(${cnt(f)})</span></button>`).join('')}</div>
    <div style="display:flex;align-items:center;margin:2px 0 2px"><span class="small" style="flex:1"><b>Quick ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}remarks</b> — tap to add</span>
      <button class="pbtn sec" style="padding:4px 10px;font-size:13px" onclick="modEdit=!modEdit;drawMod()">${modEdit?'Done editing':'Edit list'}</button></div>
-   <div class="canned">${shown.map(x=>`<div style="display:flex;gap:6px"><button style="flex:1" onclick="addCanned('${x.k}',${x.i})"><b style="color:${x.r==='H'?'#c62828':x.r==='B'?'#b26a00':'#1b2a8a'}">${x.r||'–'}</b>&nbsp; ${esc(x.t)}${x.k==='*'?' <span class="small">(all items)</span>':''}</button>${modEdit?`<button style="flex:0 0 44px;text-align:center;color:#c62828" onclick="libDel('${x.k}',${x.i})">✕</button>`:''}</div>`).join('')||`<div class="small">No ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}quick remarks for this item yet — type one above and tap “Add + save”.</div>`}</div>
+   <div class="canned">${shown.map(x=>`<div style="display:flex;gap:6px"><button style="flex:1" onclick="addCanned('${x.k}',${x.i})"><b style="color:${x.r==='H'?'#b23a2a':x.r==='B'?'#b26a00':'#6b4f36'}">${x.r||'–'}</b>&nbsp; ${esc(x.t)}${x.k==='*'?' <span class="small">(all items)</span>':''}</button>${modEdit?`<button style="flex:0 0 44px;text-align:center;color:#c62828" onclick="libDel('${x.k}',${x.i})">✕</button>`:''}</div>`).join('')||`<div class="small">No ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}quick remarks for this item yet — type one above and tap “Add + save”.</div>`}</div>
    <div class="small" style="margin-top:10px"><b>Or type your own ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}remark</b> (new line = new printed line)</div>
-   <textarea id="draft" style="width:100%;min-height:58px;padding:7px;border:1px solid #9aa7b4;border-radius:7px;margin:4px 0" oninput="modDraft=this.value" placeholder="e.g. Missing cover plate, 2nd floor bedroom">${esc(modDraft)}</textarea>
+   <textarea id="draft" style="width:100%;min-height:58px;padding:7px;border:1px solid #b5a794;border-radius:7px;margin:4px 0" oninput="modDraft=this.value">${esc(modDraft)}</textarea>
    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
      <button class="pbtn" onclick="addDraft(false)">Add as ${fr}</button>
      <button class="pbtn sec" onclick="addDraft(true)">Add + save to quick list</button>
@@ -503,7 +510,8 @@ function addDraft(keep){const t=(modDraft||'').trim();if(!t){const d=$('#draft')
   const rt=modFilter==='All'?'C':modFilter;const r=rec(modId);r.rem.push({r:rt,t});ensureRating(modId,rt);
   if(keep){const k=$('#draftAll')&&$('#draftAll').checked?'*':modId;LIB[k]=LIB[k]||[];if(!LIB[k].some(x=>x.t===t&&x.r===rt)){LIB[k].push({r:rt,t});saveLib()}}
   modDraft='';save();drawMod()}
-function libDel(k,i){const x=LIB[k][i];if(!confirm('Remove from quick list?\n\n'+x.t))return;LIB[k].splice(i,1);saveLib();drawMod()}
+function libDel(k,i){const x=LIB[k][i];if(!confirm('Remove from quick list?\n\n'+x.t))return;LIB[k].splice(i,1);
+  if((DEF_LIB[k]||[]).some(d=>d[1]===x.t)){LIBDEL.push(k+"|"+x.t);LS.set("mwtish_libdel",LIBDEL)}saveLib();if(modId)drawMod()}
 function libAdd(id,i){const m=rec(id).rem[i];const t=(m.t||'').trim();if(!t)return;LIB[id]=LIB[id]||[];if(!LIB[id].some(x=>x.t===t)){LIB[id].push({r:m.r,t});saveLib()}drawMod()}
 function remLabel(id){return /^\d+[abc]$/.test(id)?id.toUpperCase():id+'.'}
 
@@ -518,6 +526,8 @@ function showJobs(){
   el.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
      <button class="pbtn" onclick="createJob()">+ New Maplewood report</button>
      <label class="pbtn">Open report file<input type="file" accept=".json,application/json,text/plain" class="hide" onchange="openJobFile(this)"></label>
+     <button class="pbtn sec" onclick="exportComments()">Export comments</button>
+     <label class="pbtn sec">Import comments<input type="file" accept=".json,application/json,text/plain" class="hide" onchange="importComments(this,'merge')"></label>
      <button class="pbtn sec" onclick="showSettings()">Settings</button>
      <button class="pbtn sec" onclick="exportAll()">Export backup</button>
      <label class="pbtn sec">Import<input type="file" accept=".json,application/json" class="hide" onchange="importFile(this)"></label></div>
@@ -533,6 +543,39 @@ function copyJob(id){const s=JOBS.find(j=>j.id===id);const c=JSON.parse(JSON.str
 function delJob(id){const j=JOBS.find(x=>x.id===id);if(!confirm('Delete report for '+(j.a.address||'(no address)')+'?'))return;JOBS=JOBS.filter(x=>x.id!==id);if(J&&J.id===id)J=null;flush();showJobs()}
 function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function fileBase(){return ((J.a.address||'Maplewood report').replace(/[\\/:*?"<>|]/g,'').trim()+' Maplewood TISH')}
+async function shareOrDownload(name,text){
+  try{const file=new File([text],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+  download(name,text)}
+function libCount(L){return Object.values(L||{}).reduce((a,v)=>a+(v||[]).length,0)}
+let EXSEL=null;
+function isStarter(k,t){return (DEF_LIB[k]||[]).some(d=>d[1]===t)}
+function exportComments(){
+  modId=null;const keys=[...Object.keys(ITEM),'*'].filter(k=>(LIB[k]||[]).length).concat(Object.keys(LIB).filter(k=>!ITEM[k]&&k!=='*'&&LIB[k].length));
+  if(!EXSEL){EXSEL={};keys.forEach(k=>LIB[k].forEach((x,i)=>EXSEL[k+'#'+i]=!isStarter(k,x.t)))}
+  const n=Object.values(EXSEL).filter(Boolean).length;
+  let h=`<h3>Export comments</h3><div class="small">Check the comments to include. Your own saved comments are checked; starter comments are not. One-off comments typed into a report are never in this list.</div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="pbtn sec" onclick="exSet('all')">All</button><button class="pbtn sec" onclick="exSet('mine')">Only mine</button><button class="pbtn sec" onclick="exSet('none')">None</button></div>`;
+  keys.forEach(k=>{h+=`<div class="small" style="margin-top:8px"><b>${k==='*'?'Every item':'Item '+esc(remLabel(k).replace('.',''))+' — '+esc(ITEM[k]?ITEM[k].label:'')}</b></div>`;
+    LIB[k].forEach((x,i)=>{const id=k+'#'+i;h+=`<label style="display:flex;gap:8px;align-items:flex-start;padding:6px 4px;border-bottom:1px solid #eee6da"><input type="checkbox" style="margin-top:3px;width:20px;height:20px" ${EXSEL[id]?'checked':''} onchange="EXSEL['${id}']=this.checked;exCount()">
+      <span><b style="color:${x.r==='H'?'#b23a2a':x.r==='B'?'#b26a00':'#6b4f36'}">${x.r||'–'}</b> ${esc(x.t)}${isStarter(k,x.t)?' <span class="small">(starter)</span>':''}</span></label>`})});
+  h+=`<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;position:sticky;bottom:0;background:#fff;padding-top:8px"><button class="pbtn sec" onclick="EXSEL=null;closeMod()">Cancel</button><button class="pbtn" id="exBtn" onclick="doExport()">Export ${n} selected</button></div>`;
+  $('#modBox').innerHTML=h;$('#mod').classList.add('on');
+}
+function exCount(){const n=Object.values(EXSEL).filter(Boolean).length;$('#exBtn').textContent='Export '+n+' selected'}
+function exSet(m){Object.keys(EXSEL).forEach(id=>{const [k,i]=id.split('#');const x=LIB[k][+i];EXSEL[id]=m==='all'?true:m==='none'?false:!isStarter(k,x.t)});exportComments()}
+function doExport(){const out={};Object.keys(EXSEL).forEach(id=>{if(!EXSEL[id])return;const [k,i]=id.split('#');const x=LIB[k]&&LIB[k][+i];if(x)(out[k]=out[k]||[]).push(x)});
+  const n=libCount(out);if(!n){alert('Nothing selected.');return}EXSEL=null;closeMod();
+  shareOrDownload('Maplewood comments '+today()+'.json',JSON.stringify({app:'maplewood-tish-comments',v:1,exported:new Date().toISOString(),appVersion:APP_VER,count:n,lib:out},null,1))}
+function exportAllCommentsRaw(){shareOrDownload('Maplewood comments '+today()+'.json',JSON.stringify({app:'maplewood-tish-comments',v:1,exported:new Date().toISOString(),appVersion:APP_VER,lib:LIB,deleted:LIBDEL},null,1))}
+let impMode='merge';
+function importComments(inp,mode){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{
+  const d=JSON.parse(rd.result);if(!d.lib){alert('No comments found in that file.');return}
+  const inc=normLib(d.lib);
+  if(mode==='replace'){if(!confirm('Replace your whole comment list with the '+libCount(inc)+' comments in this file?'))return;LIB=inc;
+    if(Array.isArray(d.deleted)){LIBDEL=d.deleted;LS.set('mwtish_libdel',LIBDEL)}saveLib();alert('Comment list replaced ('+libCount(LIB)+' comments).')}
+  else{let n=0;Object.keys(inc).forEach(k=>{LIB[k]=LIB[k]||[];inc[k].forEach(x=>{if(!LIB[k].some(y=>y.t===x.t)){LIB[k].push(x);n++}})});saveLib();alert(n+' new comment(s) added. You now have '+libCount(LIB)+'.')}
+  if(curTab==='settings')showSettings()}catch(e){alert('Could not read that file.')}};rd.readAsText(f)}
 async function saveJobFile(){
   if(!J)return;flush();const name=fileBase()+'.json';
   const text=JSON.stringify({app:'maplewood-tish',v:1,saved:new Date().toISOString(),job:J},null,1);
@@ -541,7 +584,7 @@ async function saveJobFile(){
   download(name,text);
 }
 function openJobFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{
-  const d=JSON.parse(rd.result);const j=d.job||(d.a&&d.units?d:null);if(!j){if(d.jobs){alert('That is a full backup — use Import instead.')}else alert('Not a Maplewood report file.');return}
+  const d=JSON.parse(rd.result);if(d.app==='maplewood-tish-comments'){alert('That is a comments file — use Import comments.');return}const j=d.job||(d.a&&d.units?d:null);if(!j){if(d.jobs){alert('That is a full backup — use Import instead.')}else alert('Not a Maplewood report file.');return}
   const i=JOBS.findIndex(x=>x.id===j.id);
   if(i>=0){if(!confirm('This report ('+(j.a.address||'')+') is already on this device. Replace it with the file version?')){J=JOBS[i];curUnit=0;go('addr');return}JOBS[i]=j}else JOBS.unshift(j);
   J=j;curUnit=0;flush();go('addr')}catch(e){alert('Could not read that file.')}};rd.readAsText(f)}
@@ -566,7 +609,11 @@ function showSettings(){
   <div class="card"><div class="sh"><span class="t">CITY HEADER (page 1)</span></div>
    ${SET.hdr.map((l,i)=>`<label class="fld"><span>Line ${i+1}</span><input class="s_h" value="${esc(l)}"></label>`).join('')}
    <label class="fld"><span>Complaints paragraph</span><textarea id="s_cmp" rows="3">${esc(SET.complaints)}</textarea></label></div>
-  <div class="card"><div class="sh"><span class="t">QUICK REMARKS</span></div>
+  <div class="card"><div class="sh"><span class="t">QUICK REMARKS (${libCount(LIB)})</span></div>
+   <div class="note">Your comments live on this device. <b>Export comments</b> to back them up, move them to your other device, or send them to Claude to build into the app.</div>
+   <div class="note" style="display:flex;gap:8px;flex-wrap:wrap"><button class="pbtn" onclick="exportComments()">Export comments</button>
+    <label class="pbtn sec">Import — add to my list<input type="file" accept=".json,application/json,text/plain" class="hide" onchange="importComments(this,'merge')"></label>
+    <label class="pbtn red">Import — replace my list<input type="file" accept=".json,application/json,text/plain" class="hide" onchange="importComments(this,'replace')"></label></div>
    <div class="note">One per line: <b>item | H, B or C | text</b> — e.g. <b>43 | H | Receptacle(s) not GFCI protected</b>. Use <b>*</b> as the item for remarks on every item, and <b>\\n</b> for a line break.</div>
    <label class="fld"><textarea id="s_lib" rows="14" style="font-size:13px">${esc(libTxt)}</textarea></label>
    <div class="note"><button class="pbtn red" onclick="if(confirm('Reset quick remarks to the starter list?')){LIB=defLib();saveLib();showSettings()}">Reset quick remarks</button></div></div>
