@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Maplewood TISH</title>
+<link rel="apple-touch-icon" href="icon-maplewood.png">
+<link rel="icon" type="image/png" href="icon-maplewood.png">
+<meta name="apple-mobile-web-app-title" content="Maplewood">
 <style>
 :root{--teal:#3fd0d4;--navy:#1b2a8a;--ink:#1d2433;--bg:#eef3f6;--card:#fff;--line:#c9d3dc;--red:#c62828;--sel:#1b2a8a}
 *{box-sizing:border-box}
@@ -179,34 +182,39 @@ let SET=Object.assign({},DEF_SET,LS.get(K_SET,{}));
 
 const BOILER62='This evaluation is not the same as a buyers evaluation. Buyers are highly encouraged to have an inspection with a buyer inspector. Finished, covered and/or snow covered areas are not viewed. Cosmetics are not evaluated. City rental evaluations, city codes, bank - FHA and zoning evaluations have different standards.';
 const SMOKE39='Monitor smoke and carbon monoxide detectors batteries, age and operation.';
+// Quick remarks: per item, each tagged H (Hazard), B (Below minimum) or C (Comment)
 const DEF_LIB={
- '1':["Low headroom (less than 6' 8\"). Handrail ends lack returns","Handrail ends lack returns","Handrail missing","Low headroom (less than 6' 8\")"],
- '4':["Efflorescence observed on foundation walls","Staining observed"],
- '8':["Panel not fully indexed. Access to the panel impeded by the dryer","Missing grounding jumper on house side of water meter","Panel not fully indexed"],
- '9':["Open junction box(es)","Extension cord used as permanent wiring"],
- '12':["Missing backflow preventers at laundry sink and exterior faucet(s)"],
- '13':["Old gas valve(s) in use","Gas piping was not fully visible"],
- '17a':["CO and heat exchanger(s) not tested.\nFurnace - Basement"],
- '18a':["CO and heat exchanger(s) not tested.\nHeater - Garage"],
- '39':[SMOKE39],
- '43':["Receptacle(s) not GFCI protected, 1st floor"],
- '52':["Less than required egress window size."],
- '58':["Limited view from attic hatch"],
- '62':[BOILER62],
- '65':["Grade is low / flat in areas."],
- '71':["Limited view from ground"],
- '77':["Cracks observed"],
- '82':["Fireplace components not fully visible"],
- '83':["Fireplace components not fully visible"],
- '84':["Fireplace components not fully visible"],
- '86':["Basement partially finished"],
- '*':["Not fully visible","Limited view","Finished/covered areas not viewed"]
+ '1':[['B',"Low headroom (less than 6' 8\"). Handrail ends lack returns"],['B',"Handrail ends lack returns"],['B',"Low headroom (less than 6' 8\")"],['B',"Handrail missing"]],
+ '4':[['C',"Efflorescence observed on foundation walls"],['C',"Staining observed"]],
+ '8':[['H',"Missing grounding jumper on house side of water meter"],['B',"Panel not fully indexed. Access to the panel impeded by the dryer"],['B',"Panel not fully indexed"]],
+ '9':[['H',"Open junction box(es)"],['H',"Extension cord used as permanent wiring"]],
+ '12':[['B',"Missing backflow preventers at laundry sink and exterior faucet(s)"]],
+ '13':[['B',"Old gas valve(s) in use"],['C',"Gas piping was not fully visible"]],
+ '17a':[['C',"CO and heat exchanger(s) not tested.\nFurnace - Basement"]],
+ '18a':[['C',"CO and heat exchanger(s) not tested.\nHeater - Garage"]],
+ '39':[['C',SMOKE39]],
+ '43':[['H',"Receptacle(s) not GFCI protected, 1st floor"]],
+ '52':[['B',"Less than required egress window size."]],
+ '58':[['C',"Limited view from attic hatch"]],
+ '62':[['C',BOILER62]],
+ '65':[['B',"Grade is low / flat in areas."]],
+ '71':[['C',"Limited view from ground"]],
+ '77':[['B',"Cracks observed"]],
+ '82':[['C',"Fireplace components not fully visible"]],
+ '83':[['C',"Fireplace components not fully visible"]],
+ '84':[['C',"Fireplace components not fully visible"]],
+ '86':[['C',"Basement partially finished"]],
+ '*':[['C',"Not fully visible"],['C',"Limited view"],['C',"Finished/covered areas not viewed"]]
 };
-let LIB=LS.get(K_LIB,null)||JSON.parse(JSON.stringify(DEF_LIB));
-// one-time merge of newer starter remarks into a saved list
-(function(){const V=2;if(LS.get('mwtish_libv',1)>=V)return;
-  Object.keys(DEF_LIB).forEach(k=>{LIB[k]=LIB[k]||[];DEF_LIB[k].forEach(t=>{if(!LIB[k].includes(t))LIB[k].push(t)})});
-  LS.set(K_LIB,LIB);LS.set('mwtish_libv',V)})();
+const K_LIB2='mwtish_lib_v2';
+function defLib(){const o={};Object.keys(DEF_LIB).forEach(k=>o[k]=DEF_LIB[k].map(([r,t])=>({r,t})));return o}
+function normLib(L){const o={};const guess=(k,t)=>{const d=(DEF_LIB[k]||[]).concat(DEF_LIB['*']).find(x=>x[1]===t);return d?d[0]:'C'};
+  Object.keys(L||{}).forEach(k=>{o[k]=(L[k]||[]).map(x=>typeof x==='string'?{r:guess(k,x),t:x}:{r:x.r||'',t:x.t||''}).filter(x=>x.t)});return o}
+let LIB=LS.get(K_LIB2,null);
+if(!LIB){const old=LS.get(K_LIB,null);LIB=old?normLib(old):defLib();
+  if(old){Object.keys(DEF_LIB).forEach(k=>{LIB[k]=LIB[k]||[];DEF_LIB[k].forEach(([r,t])=>{if(!LIB[k].some(x=>x.t===t))LIB[k].push({r,t})})})}
+  LS.set(K_LIB2,LIB)}
+const saveLib=()=>LS.set(K_LIB2,LIB);
 
 /* ---------- catalog ---------- */
 const KIND={
@@ -430,37 +438,62 @@ function setUnits(n){
 }
 
 /* ---------- remarks modal ---------- */
-let modId=null;
+let modId=null,modFilter='All',modEdit=false,modDraft='';
 function openRem(id,newRating){
-  modId=id; const r=rec(id);
-  if(newRating){r.rem.push({r:newRating,t:''});save()}
-  drawMod(newRating?r.rem.length-1:-1);
+  modId=id; const r=rec(id); modEdit=false; modDraft='';
+  const vs=(r.v||'').split(',').filter(x=>MULTI.has(x));
+  modFilter=newRating||vs.find(v=>!(r.rem||[]).some(q=>q.r===v&&q.t.trim()))||vs[0]||'All';
+  drawMod(-1);
   $('#mod').classList.add('on');
 }
 function closeMod(){$('#mod').classList.remove('on');const id=modId;modId=null;
   const r=peek(id);r.rem=ordRem((r.rem||[]).filter(m=>m.t.trim()||m.keep));r.v=ordVal(r.v);save();
   if(curTab==='view')renderReport(); else { refreshItem(id); if(id==='39'){refreshItem('39loc');refreshItem('39hw')} } }
+const RNAME={H:'Hazard',B:'Below min.',C:'Comment'};
 function drawMod(focusIdx){
   const id=modId,m=ITEM[id],r=rec(id);
   const unitTxt=m.unit&&J.units.length>1?` · Unit ${curUnit+1}`:'';
-  const pick=[...(LIB[id]||[]),...(LIB['*']||[])];
-  const RB=['B','H','C','M','Y','N','NV','NA',''];
+  const RB=['H','B','C','M','Y','N','NV','NA',''];
   let h=`<h3>${esc(m.num||'')} ${esc(m.label)}${unitTxt}</h3>
-   <div class="btns" style="margin-bottom:6px">${KIND[m.kind].map(v=>`<button class="${(r.v||'').split(',').includes(v)?'on':''}" onclick="rate('${id}','${v}');drawMod()">${v}</button>`).join('')}<span class="small" style="align-self:center;margin-left:6px">Rating: <b>${esc(r.v)||'—'}</b></span></div>
-   <div class="small">Remarks print Hazard first, then Below, then Comment (e.g. “${esc(remLabel(id))} H …”). Any B, C or H needs a written comment.</div>`;
-  (r.rem||[]).forEach((x,i)=>{
-    h+=`<div class="rem"><div class="rr">${RB.map(v=>`<button class="${x.r===v?'on':''}" onclick="rec('${id}').rem[${i}].r='${v}';save();drawMod()">${v||'none'}</button>`).join('')}<span class="sp"></span>
-     <button title="Move up" onclick="mvRem(${i},-1)">↑</button><button title="Save to quick list" onclick="libAdd('${id}',${i})">★</button><button title="Delete" style="color:#c62828" onclick="rec('${id}').rem.splice(${i},1);save();drawMod()">✕</button></div>
-     <textarea id="rt${i}" oninput="rec('${id}').rem[${i}].t=this.value;save()" placeholder="Comment (new line = new printed line, e.g. location)">${esc(x.t)}</textarea></div>`});
-  const defR=()=>{const vs=(r.v||'').split(',').filter(x=>MULTI.has(x));return vs.find(v=>!(r.rem||[]).some(q=>q.r===v))||vs[0]||'C'};
-  h+=`<div style="display:flex;gap:8px;margin:8px 0"><button class="pbtn sec" onclick="rec('${id}').rem.push({r:'${defR()}',t:''});save();drawMod(rec('${id}').rem.length-1)">+ Blank remark</button><span style="flex:1"></span><button class="pbtn" onclick="closeMod()">Done</button></div>`;
-  if(pick.length)h+=`<div class="small"><b>Quick remarks</b> — tap to add</div><div class="canned">${pick.map((t,i)=>`<button onclick="addCanned(${i})">${esc(t)}</button>`).join('')}</div>`;
-  $('#modBox').innerHTML=h; window._pick=pick; window._defR=defR;
+   <div class="btns" style="margin-bottom:6px">${KIND[m.kind].map(v=>`<button class="${(r.v||'').split(',').includes(v)?'on':''}" onclick="rate('${id}','${v}');drawMod()">${v}</button>`).join('')}<span class="small" style="align-self:center;margin-left:6px">Rating: <b>${esc(ordVal(r.v))||'—'}</b></span></div>`;
+  let curH='';
+  if((r.rem||[]).length){
+    curH+=`<div style="margin-top:12px;border-top:2px solid var(--line);padding-top:8px" class="small"><b>On this report for item ${esc(remLabel(id).replace('.',''))}</b> — prints Hazard first, then Below, then Comment</div>`;
+    (r.rem||[]).forEach((x,i)=>{
+      curH+=`<div class="rem"><div class="rr">${RB.map(v=>`<button class="${x.r===v?'on':''}" onclick="rec('${id}').rem[${i}].r='${v}';save();drawMod()">${v||'none'}</button>`).join('')}<span class="sp"></span>
+       <button title="Save to quick list" onclick="libAdd('${id}',${i})">★</button><button title="Delete" style="color:#c62828" onclick="rec('${id}').rem.splice(${i},1);save();drawMod()">✕</button></div>
+       <textarea id="rt${i}" oninput="rec('${id}').rem[${i}].t=this.value;save()">${esc(x.t)}</textarea></div>`});
+  }
+  // add-a-remark area, filtered by H / B / C
+  const all=[...(LIB[id]||[]).map((x,i)=>({...x,k:id,i})),...(LIB['*']||[]).map((x,i)=>({...x,k:'*',i}))];
+  const shown=modFilter==='All'?all:all.filter(x=>x.r===modFilter);
+  const cnt=f=>f==='All'?all.length:all.filter(x=>x.r===f).length;
+  const fr=modFilter==='All'?'C':modFilter;
+  h+=`<div style="margin-top:6px">
+   <div class="btns" style="margin-bottom:8px">${['H','B','C','All'].map(f=>`<button class="${modFilter===f?'on':''}" style="padding:0 10px" onclick="modFilter='${f}';drawMod()">${f==='All'?'All':f+' '+RNAME[f]} <span style="opacity:.7">(${cnt(f)})</span></button>`).join('')}</div>
+   <div style="display:flex;align-items:center;margin:2px 0 2px"><span class="small" style="flex:1"><b>Quick ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}remarks</b> — tap to add</span>
+     <button class="pbtn sec" style="padding:4px 10px;font-size:13px" onclick="modEdit=!modEdit;drawMod()">${modEdit?'Done editing':'Edit list'}</button></div>
+   <div class="canned">${shown.map(x=>`<div style="display:flex;gap:6px"><button style="flex:1" onclick="addCanned('${x.k}',${x.i})"><b style="color:${x.r==='H'?'#c62828':x.r==='B'?'#b26a00':'#1b2a8a'}">${x.r||'–'}</b>&nbsp; ${esc(x.t)}${x.k==='*'?' <span class="small">(all items)</span>':''}</button>${modEdit?`<button style="flex:0 0 44px;text-align:center;color:#c62828" onclick="libDel('${x.k}',${x.i})">✕</button>`:''}</div>`).join('')||`<div class="small">No ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}quick remarks for this item yet — type one above and tap “Add + save”.</div>`}</div>
+   <div class="small" style="margin-top:10px"><b>Or type your own ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}remark</b> (new line = new printed line)</div>
+   <textarea id="draft" style="width:100%;min-height:58px;padding:7px;border:1px solid #9aa7b4;border-radius:7px;margin:4px 0" oninput="modDraft=this.value" placeholder="e.g. Missing cover plate, 2nd floor bedroom">${esc(modDraft)}</textarea>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+     <button class="pbtn" onclick="addDraft(false)">Add as ${fr}</button>
+     <button class="pbtn sec" onclick="addDraft(true)">Add + save to quick list</button>
+     <label class="small" style="display:flex;align-items:center;gap:4px"><input type="checkbox" id="draftAll"> save for every item</label></div>
+  </div>
+  ${curH}
+  <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="pbtn" onclick="closeMod()">Done</button></div>`;
+  $('#modBox').innerHTML=h;
   if(focusIdx>=0){const t=$('#rt'+focusIdx);if(t)setTimeout(()=>t.focus(),60)}
 }
-function addCanned(i){const r=rec(modId);r.rem.push({r:window._defR(),t:window._pick[i]});save();drawMod()}
-function mvRem(i,d){const a=rec(modId).rem;const j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];save();drawMod()}
-function libAdd(id,i){const t=(rec(id).rem[i].t||'').trim();if(!t)return;LIB[id]=LIB[id]||[];if(!LIB[id].includes(t)){LIB[id].unshift(t);LS.set(K_LIB,LIB)}drawMod();alert('Saved to quick remarks for item '+id)}
+function ensureRating(id,rt){if(!MULTI.has(rt))return;const r=rec(id);const cur=(r.v||'').split(',').filter(x=>MULTI.has(x));if(!cur.includes(rt)){cur.push(rt);r.v=ordVal(cur.join(','))}}
+function addCanned(k,i){const x=LIB[k][i];const r=rec(modId);r.rem.push({r:x.r,t:x.t});ensureRating(modId,x.r);save();drawMod()}
+function addDraft(keep){const t=(modDraft||'').trim();if(!t){const d=$('#draft');if(d)d.focus();return}
+  const rt=modFilter==='All'?'C':modFilter;const r=rec(modId);r.rem.push({r:rt,t});ensureRating(modId,rt);
+  if(keep){const k=$('#draftAll')&&$('#draftAll').checked?'*':modId;LIB[k]=LIB[k]||[];if(!LIB[k].some(x=>x.t===t&&x.r===rt)){LIB[k].push({r:rt,t});saveLib()}}
+  modDraft='';save();drawMod()}
+function libDel(k,i){const x=LIB[k][i];if(!confirm('Remove from quick list?\n\n'+x.t))return;LIB[k].splice(i,1);saveLib();drawMod()}
+function libAdd(id,i){const m=rec(id).rem[i];const t=(m.t||'').trim();if(!t)return;LIB[id]=LIB[id]||[];if(!LIB[id].some(x=>x.t===t)){LIB[id].push({r:m.r,t});saveLib()}drawMod()}
 function remLabel(id){return /^\d+[abc]$/.test(id)?id.toUpperCase():id+'.'}
 
 /* ---------- jobs list ---------- */
@@ -503,13 +536,13 @@ function openJobFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const r
 function exportAll(){flush();download('maplewood-tish-backup-'+today()+'.json',JSON.stringify({app:'maplewood-tish',v:1,jobs:JOBS,settings:SET,lib:LIB},null,1))}
 function importFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);const jobs=d.jobs||(d.job?[d.job]:(d.a?[d]:[]));let n=0;
   jobs.forEach(j=>{const i=JOBS.findIndex(x=>x.id===j.id);if(i<0){JOBS.push(j);n++}else if((j.updated||0)>(JOBS[i].updated||0)){JOBS[i]=j;n++}});
-  if(d.lib&&confirm('Also import quick remarks from the backup?')){LIB=d.lib;LS.set(K_LIB,LIB)}
+  if(d.lib&&confirm('Also import quick remarks from the backup?')){LIB=normLib(d.lib);saveLib()}
   flush();alert(n+' report(s) imported.');showJobs()}catch(e){alert('Not a valid backup file.')}};rd.readAsText(f)}
 
 /* ---------- settings ---------- */
 function showSettings(){
   curTab='settings';['jobs','edit','view'].forEach(s=>$('#'+s).classList.add('hide'));$('#settings').classList.remove('hide');
-  const libTxt=Object.keys(LIB).map(k=>LIB[k].map(t=>k+' | '+t.replace(/\n/g,'\\n')).join('\n')).join('\n');
+  const libTxt=Object.keys(LIB).map(k=>LIB[k].map(x=>k+' | '+(x.r||'-')+' | '+x.t.replace(/\n/g,'\\n')).join('\n')).join('\n');
   $('#settings').innerHTML=`<div class="card"><div class="sh"><span class="t">EVALUATOR DEFAULTS (new reports)</span></div>
    <div class="grid2"><label class="fld"><span>Evaluator</span><input id="s_ev" value="${esc(SET.evaluator)}"></label><label class="fld"><span>Phone</span><input id="s_ph" value="${esc(SET.phone)}"></label></div>
    <div class="grid2"><label class="fld"><span>Default zip</span><input id="s_zip" value="${esc(SET.zip)}"></label><label class="fld"><span>Form revision text</span><input id="s_rev" value="${esc(SET.rev)}"></label></div>
@@ -520,9 +553,9 @@ function showSettings(){
    ${SET.hdr.map((l,i)=>`<label class="fld"><span>Line ${i+1}</span><input class="s_h" value="${esc(l)}"></label>`).join('')}
    <label class="fld"><span>Complaints paragraph</span><textarea id="s_cmp" rows="3">${esc(SET.complaints)}</textarea></label></div>
   <div class="card"><div class="sh"><span class="t">QUICK REMARKS</span></div>
-   <div class="note">One per line: <b>item | text</b>. Use <b>*</b> for remarks shown on every item, and <b>\\n</b> for a line break.</div>
+   <div class="note">One per line: <b>item | H, B or C | text</b> — e.g. <b>43 | H | Receptacle(s) not GFCI protected</b>. Use <b>*</b> as the item for remarks on every item, and <b>\\n</b> for a line break.</div>
    <label class="fld"><textarea id="s_lib" rows="14" style="font-size:13px">${esc(libTxt)}</textarea></label>
-   <div class="note"><button class="pbtn red" onclick="if(confirm('Reset quick remarks to the starter list?')){LIB=JSON.parse(JSON.stringify(DEF_LIB));LS.set(K_LIB,LIB);showSettings()}">Reset quick remarks</button></div></div>
+   <div class="note"><button class="pbtn red" onclick="if(confirm('Reset quick remarks to the starter list?')){LIB=defLib();saveLib();showSettings()}">Reset quick remarks</button></div></div>
   <div style="display:flex;gap:8px"><button class="pbtn" onclick="saveSettings()">Save settings</button><button class="pbtn sec" onclick="J?go(lastTab):showJobs()">Cancel</button></div>`;
 }
 function sigFile(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{SET.sig=rd.result;LS.set(K_SET,SET);showSettings()};rd.readAsDataURL(f)}
@@ -530,8 +563,10 @@ function saveSettings(){
   SET.evaluator=$('#s_ev').value;SET.phone=$('#s_ph').value;SET.zip=$('#s_zip').value;SET.rev=$('#s_rev').value;
   SET.autoRemark=$('#s_auto').checked;SET.useSig=$('#s_sig').checked;
   SET.hdr=[...document.querySelectorAll('.s_h')].map(i=>i.value);SET.complaints=$('#s_cmp').value;
-  const lib={};$('#s_lib').value.split('\n').forEach(l=>{const m=/^\s*([^|]+?)\s*\|\s*(.+)$/.exec(l);if(m){(lib[m[1]]=lib[m[1]]||[]).push(m[2].replace(/\\n/g,'\n'))}});
-  LIB=lib;LS.set(K_LIB,LIB);LS.set(K_SET,SET);alert('Saved');J?go(lastTab):showJobs();
+  const lib={};$('#s_lib').value.split('\n').forEach(l=>{const p=l.split('|').map(x=>x.trim());if(p.length<2||!p[0])return;
+    let rt='C',t;if(p.length>=3&&/^(H|B|C|-|)$/i.test(p[1])){rt=p[1].toUpperCase()==='-'?'':p[1].toUpperCase();t=p.slice(2).join(' | ')}else t=p.slice(1).join(' | ');
+    if(t)(lib[p[0]]=lib[p[0]]||[]).push({r:rt,t:t.replace(/\\n/g,'\n')})});
+  LIB=lib;saveLib();LS.set(K_SET,SET);alert('Saved');J?go(lastTab):showJobs();
 }
 
 /* =====================================================================
