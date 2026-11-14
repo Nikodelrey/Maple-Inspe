@@ -164,8 +164,9 @@ main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='1.8', APP_DATE='Nov 13, 2026';
+const APP_VER='1.9', APP_DATE='Nov 14, 2026';
 const CHANGES=[
+ ['1.9','Nov 14, 2026','Quick remarks built from your sample reports; tapping more remarks with the same rating adds to one line (1. B Missing handrail. Missing guardrail.)'],
  ['1.8','Nov 13, 2026','Export comments: pick which comments to include'],
  ['1.7','Nov 13, 2026','Warm neutral colors; removed example text in comment box'],
  ['1.6','Nov 13, 2026','Export / Import comments (canned remarks file)'],
@@ -195,27 +196,62 @@ const BOILER62='This evaluation is not the same as a buyers evaluation. Buyers a
 const SMOKE39='Monitor smoke and carbon monoxide detectors batteries, age and operation.';
 // Quick remarks: per item, each tagged H (Hazard), B (Below minimum) or C (Comment)
 const DEF_LIB={
- '1':[['B',"Low headroom (less than 6' 8\"). Handrail ends lack returns"],['B',"Handrail ends lack returns"],['B',"Low headroom (less than 6' 8\")"],['B',"Handrail missing"]],
- '4':[['C',"Efflorescence observed on foundation walls"],['C',"Staining observed"]],
- '8':[['H',"Missing grounding jumper on house side of water meter"],['B',"Panel not fully indexed. Access to the panel impeded by the dryer"],['B',"Panel not fully indexed"]],
- '9':[['H',"Open junction box(es)"],['H',"Extension cord used as permanent wiring"]],
- '12':[['B',"Missing backflow preventers at laundry sink and exterior faucet(s)"]],
- '13':[['B',"Old gas valve(s) in use"],['C',"Gas piping was not fully visible"]],
- '17a':[['C',"CO and heat exchanger(s) not tested."]],
- '18a':[['C',"CO and heat exchanger(s) not tested."]],
- '39':[['C',SMOKE39]],
- '43':[['H',"Receptacle(s) not GFCI protected"]],
+ '1':[['B',"Missing handrail"],['B',"Missing guardrail"],['B',"Handrail ends lack returns"],['B',"Openings in guardrail(s) greater than 4\""],['B',"Low headroom (less than 6' 8\")"]],
+ '3':[['B',"Cracks observed on foundation"],['C',"Basement mostly finished, limited view"],['C',"Basement partially finished, limited view"],['C',"Not visible, basement walls covered by insulation"],['C',"Condo unit, common areas not inspected; Exterior, garage, hallways, etc..."]],
+ '4':[['C',"Stains/efflorescence observed"],['C',"Stains observed"]],
+ '5':[['C',"Limited view"]],
+ '8':[['H',"Missing grounding jumper on house side of water meter"],['H',"Grounding jumper disconnected on street side of water meter"],['B',"Panel not fully indexed"],['B',"Access to the panel impeded"],['C',"Condo unit, unknown amperage. Access to subpanel only"]],
+ '9':[['H',"Open junction boxes/exposed wires"],['B',"Extension cord wiring in use"],['B',"Extension cord wiring to the sump pump"],['B',"Improper wire run(s)/loose wiring"],['B',"Loose outlet box"]],
+ '10':[['B',"Drain was dry, possible sewer gas entrance point"],['C',"Can't get cover(s) off to evaluate"]],
+ '11':[['H',"Water is off, can't evaluate"],['B',"S-trap/unvented waste piping at laundry sink"],['B',"Corrosion observed on waste piping"],['B',"Slow drain at laundry sink"],['C',"Limited view"]],
+ '12':[['H',"Water is off, can't evaluate"],['B',"Missing backflow preventers at laundry sink and exterior faucet(s)"],['B',"Missing backflow preventer(s) at exterior faucets"],['B',"Missing backflow preventer at laundry sink"],['B',"Saddle type connections observed"],['C',"Limited view"]],
+ '13':[['B',"Old gas valve(s) in use"],['C',"Gas piping was not fully visible"],['C',"Limited view of gas piping"],['C',"No visible gas piping"]],
+ '14':[['C',"Condo unit, not in unit"]],
+ '15':[['C',"Not applicable, electric water heater"]],
+ '16':[['C',"Water is off"]],
+ '17a':[['H',"Door to burners was not sealed/loose at hinge point"],['H',"Missing modern backflow preventer at water supply side of boiler"],['B',"Corrosion observed on piping/expansion tank"],['C',"CO and heat exchanger(s) not tested."],['C',"Condo unit, boiler not located in unit"]],
+ '17b':[['C',"CO and heat exchanger(s) not tested."]],
+ '17c':[['B',"Venting is reduced in size where it enters the chimney"]],
+ '18a':[['C',"CO and heat exchanger(s) not tested."],['C',"Electric space heater"]],
+ '20':[['B',"Damage observed"]],
+ '22':[['C',"Stains observed at ceiling"]],
+ '23':[['H',"Loose lights"],['H',"Exposed wires"],['H',"Missing cover plates"],['H',"Missing junction box/exposed wires"],['B',"Metal pull-chain at sink light"]],
+ '24':[['H',"Water is off, can't evaluate"],['B',"S-trap/unvented waste piping"]],
+ '25':[['C',"Water is off"]],
+ '31':[['H',"Missing cover plate(s)"],['H',"Loose switches"],['H',"Loose light"]],
+ '33':[['B',"Missing screen at patio door"]],
+ '36':[['B',"Improper rise/run"],['B',"Handrail ends lack returns"],['B',"Low/missing guardrail"],['B',"Openings in guardrail over 4\""]],
+ '37':[['H',"Loose light"]],
+ '39':[['H',"Missing smoke alarm(s)"],['H',"Missing CO alarm(s)"],['H',"Missing CO alarm within 10' of bedrooms"],['H',"Smoke alarm did not function"],['C',SMOKE39]],
+ '42':[['C',"Stains observed below sink"]],
+ '43':[['H',"Missing junction box"],['H',"Outlet(s) were not GFCI protected"],['H',"No GFCI outlet"],['B',"Reverse polarity on outlet(s)"]],
+ '44':[['H',"Water is off, can't evaluate"],['B',"Corrugated waste piping at sink"],['B',"Shower head connection leaks when water is running"],['B',"Loose sink faucet"],['C',"Steamer was not viewed/tested"]],
+ '45':[['C',"Water is off"]],
+ '47':[['B',"Cracks observed at shower/tub doors"]],
+ '51':[['H',"Missing cover plates"],['H',"Damaged outlet"],['H',"Loose light"],['B',"No power to outlet(s)"]],
  '52':[['B',"Less than required egress window size."]],
- '58':[['C',"Limited view from attic hatch"]],
+ '53':[['B',"Bad/missing sash balancer(s)"]],
+ '58':[['C',"Limited view from door/hatch"],['C',"Limited view from attic hatch"],['C',"Attic was not accessible due to stored items"],['C',"No visible attic access"],['C',"Attic hatch was sealed, not visible"]],
+ '60':[['C',"Wiring was not visible"]],
+ '61':[['C',"Limited view"]],
  '62':[['C',BOILER62]],
- '65':[['B',"Grade is low / flat in areas."]],
+ '63':[['B',"Crack(s) observed"],['B',"Missing mortar"],['C',"Concealed by brick, limited view"]],
+ '65':[['B',"Grade is low / flat in areas"],['B',"Damaged/cracked sidewalk and driveway"],['B',"Patio slopes towards house"],['B',"Cracked patio"],['C',"Low/flat in areas"]],
+ '66':[['B',"Damaged/missing siding"]],
+ '67':[['B',"Missing deadbolt"],['B',"Double keyed deadbolt observed"]],
+ '69':[['B',"Damaged stairs"],['B',"Missing handrail/guardrail"],['B',"Improper rise/run"]],
  '71':[['C',"Limited view from ground"]],
- '77':[['B',"Cracks observed"]],
+ '73':[['B',"Spalling brick"],['C',"Limited view from ground"]],
+ '74':[['H',"Missing electrical meter at exterior box"],['H',"Service wires to garage were lower than 12'"],['H',"Service wires missing sheathing"]],
+ '75':[['C',"Limited view from ground"],['C',"Not applicable, tuck-under"]],
+ '76':[['B',"Siding lacks clearance from grade"],['B',"Trim decayed/damaged"],['B',"Damaged drywall/damaged fire protection between house and garage"],['C',"Interior was not viewed, door did not open"]],
+ '77':[['B',"Cracked slab"],['B',"Cracks observed"]],
+ '80':[['B',"No power to outlet(s)"],['B',"Reverse polarity outlet(s)"]],
  '82':[['C',"Fireplace components not fully visible"]],
- '83':[['C',"Fireplace components not fully visible"]],
- '84':[['C',"Fireplace components not fully visible"]],
- '86':[['C',"Basement partially finished"]],
- '*':[['C',"Not fully visible"],['C',"Limited view"],['C',"Finished/covered areas not viewed"]]
+ '83':[['C',"Fireplace components not fully visible"],['C',"Gas fireplace, components not fully visible"],['C',"Gas fireplace, limited view of fireplace components"]],
+ '84':[['C',"Fireplace components not fully visible"],['C',"Gas fireplace, limited view of fireplace components"]],
+ '86':[['C',"Basement partially finished"],['C',"Basement mostly finished, not fully visible"]],
+ '*':[['C',"Limited view"],['C',"Not applicable"],['C',"Not visible"]]
 };
 const K_LIB2='mwtish_lib_v2';
 function defLib(){const o={};Object.keys(DEF_LIB).forEach(k=>o[k]=DEF_LIB[k].map(([r,t])=>({r,t})));return o}
@@ -231,8 +267,12 @@ function mergeDefaults(){let n=0;Object.keys(DEF_LIB).forEach(k=>{LIB[k]=LIB[k]|
   if(LIBDEL.includes(k+'|'+t))return;if(!LIB[k].some(x=>x.t===t)){LIB[k].push({r,t});n++}})});if(n)saveLib();return n}
 (function(){if(LS.get('mwtish_libmerged','')!==APP_VER){mergeDefaults();LS.set('mwtish_libmerged',APP_VER)}})();
 // one-time: drop locations from starter remarks (add location yourself when needed)
-(function(){if(LS.get('mwtish_libfix',0)>=1)return;const fix={'CO and heat exchanger(s) not tested.\nFurnace - Basement':'CO and heat exchanger(s) not tested.','CO and heat exchanger(s) not tested.\nHeater - Garage':'CO and heat exchanger(s) not tested.','Receptacle(s) not GFCI protected, 1st floor':'Receptacle(s) not GFCI protected'};
-  Object.keys(LIB).forEach(k=>{LIB[k].forEach(x=>{if(fix[x.t])x.t=fix[x.t]});LIB[k]=LIB[k].filter((x,i,a)=>a.findIndex(y=>y.t===x.t&&y.r===x.r)===i)});saveLib();LS.set('mwtish_libfix',1)})();
+(function(){const v=LS.get('mwtish_libfix',0);if(v>=2)return;
+  const fix={'CO and heat exchanger(s) not tested.\nFurnace - Basement':'CO and heat exchanger(s) not tested.','CO and heat exchanger(s) not tested.\nHeater - Garage':'CO and heat exchanger(s) not tested.'};
+  const drop={'1':["Handrail missing","Low headroom (less than 6' 8\"). Handrail ends lack returns"],'4':["Efflorescence observed on foundation walls","Staining observed"],'9':["Open junction box(es)","Extension cord used as permanent wiring"],
+   '8':["Panel not fully indexed. Access to the panel impeded by the dryer"],'*':["Finished/covered areas not viewed","Not fully visible"],'43':["Receptacle(s) not GFCI protected","Receptacle(s) not GFCI protected, 1st floor"],'65':["Grade is low / flat in areas."]};
+  Object.keys(LIB).forEach(k=>{LIB[k].forEach(x=>{if(fix[x.t])x.t=fix[x.t]});LIB[k]=LIB[k].filter(x=>!(drop[k]||[]).includes(x.t)).filter((x,i,a)=>a.findIndex(y=>y.t===x.t&&y.r===x.r)===i)});
+  saveLib();LS.set('mwtish_libfix',2)})();
 
 /* ---------- catalog ---------- */
 const KIND={
@@ -505,9 +545,11 @@ function drawMod(focusIdx){
   if(focusIdx>=0){const t=$('#rt'+focusIdx);if(t)setTimeout(()=>t.focus(),60)}
 }
 function ensureRating(id,rt){if(!MULTI.has(rt))return;const r=rec(id);const cur=(r.v||'').split(',').filter(x=>MULTI.has(x));if(!cur.includes(rt)){cur.push(rt);r.v=ordVal(cur.join(','))}}
-function addCanned(k,i){const x=LIB[k][i];const r=rec(modId);r.rem.push({r:x.r,t:x.t});ensureRating(modId,x.r);save();drawMod()}
+function addRemark(id,rt,t){const r=rec(id);const ex=(r.rem||[]).find(m=>m.r===rt&&m.t.trim());
+  if(ex){let cur=ex.t.replace(/\s+$/,'');if(!/[.!?"]$/.test(cur))cur+='.';ex.t=cur+' '+t}else r.rem.push({r:rt,t});ensureRating(id,rt)}
+function addCanned(k,i){const x=LIB[k][i];addRemark(modId,x.r,x.t);save();drawMod()}
 function addDraft(keep){const t=(modDraft||'').trim();if(!t){const d=$('#draft');if(d)d.focus();return}
-  const rt=modFilter==='All'?'C':modFilter;const r=rec(modId);r.rem.push({r:rt,t});ensureRating(modId,rt);
+  const rt=modFilter==='All'?'C':modFilter;addRemark(modId,rt,t);
   if(keep){const k=$('#draftAll')&&$('#draftAll').checked?'*':modId;LIB[k]=LIB[k]||[];if(!LIB[k].some(x=>x.t===t&&x.r===rt)){LIB[k].push({r:rt,t});saveLib()}}
   modDraft='';save();drawMod()}
 function libDel(k,i){const x=LIB[k][i];if(!confirm('Remove from quick list?\n\n'+x.t))return;LIB[k].splice(i,1);
