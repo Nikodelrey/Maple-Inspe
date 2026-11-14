@@ -164,8 +164,9 @@ main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='1.9', APP_DATE='Nov 14, 2026';
+const APP_VER='2.0', APP_DATE='Nov 14, 2026';
 const CHANGES=[
+ ['2.0','Nov 14, 2026','Edit quick remarks (✎ in Edit list); "? How to" help button; quick remarks listed Hazard, Below, Comment'],
  ['1.9','Nov 14, 2026','Quick remarks built from your sample reports; tapping more remarks with the same rating adds to one line (1. B Missing handrail. Missing guardrail.)'],
  ['1.8','Nov 13, 2026','Export comments: pick which comments to include'],
  ['1.7','Nov 13, 2026','Warm neutral colors; removed example text in comment box'],
@@ -496,9 +497,9 @@ function setUnits(n){
 }
 
 /* ---------- remarks modal ---------- */
-let modId=null,modFilter='All',modEdit=false,modDraft='';
+let modId=null,modFilter='All',modEdit=false,modDraft='',modEditing=null,modHelp=false;
 function openRem(id,newRating){
-  modId=id; const r=rec(id); modEdit=false; modDraft='';
+  modId=id; const r=rec(id); modEdit=false; modDraft=''; modEditing=null; modHelp=false;
   const vs=(r.v||'').split(',').filter(x=>MULTI.has(x));
   modFilter=newRating||vs.find(v=>!(r.rem||[]).some(q=>q.r===v&&q.t.trim()))||vs[0]||'All';
   drawMod(-1);
@@ -524,14 +525,29 @@ function drawMod(focusIdx){
   }
   // add-a-remark area, filtered by H / B / C
   const all=[...(LIB[id]||[]).map((x,i)=>({...x,k:id,i})),...(LIB['*']||[]).map((x,i)=>({...x,k:'*',i}))];
-  const shown=modFilter==='All'?all:all.filter(x=>x.r===modFilter);
+  const rk=x=>({H:0,B:1,C:2}[x.r]??3);
+  const shown=(modFilter==='All'?all:all.filter(x=>x.r===modFilter)).map((x,n)=>({...x,n})).sort((a,b)=>rk(a)-rk(b)||(a.k==='*')-(b.k==='*')||a.n-b.n);
+  const col=r=>r==='H'?'#b23a2a':r==='B'?'#b26a00':'#6b4f36';
+  const row=x=>{const key=x.k+'#'+x.i;
+    if(modEditing===key)return `<div class="rem" style="margin:0"><div class="rr">${['H','B','C'].map(v=>`<button class="${(window._edR||x.r)===v?'on':''}" onclick="window._edR='${v}';window._edT=$('#edT').value;drawMod()">${v}</button>`).join('')}</div>
+      <textarea id="edT">${esc(window._edT!=null?window._edT:x.t)}</textarea>
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:6px"><button class="pbtn sec" style="padding:6px 12px" onclick="modEditing=null;window._edR=window._edT=null;drawMod()">Cancel</button><button class="pbtn" style="padding:6px 12px" onclick="libSaveEdit('${x.k}',${x.i})">Save</button></div></div>`;
+    return `<div style="display:flex;gap:6px"><button style="flex:1" onclick="${modEdit?`libStartEdit('${x.k}',${x.i})`:`addCanned('${x.k}',${x.i})`}"><b style="color:${col(x.r)}">${x.r||'–'}</b>&nbsp; ${esc(x.t)}${x.k==='*'?' <span class="small">(all items)</span>':''}</button>${modEdit?`<button title="Edit" style="flex:0 0 44px;text-align:center" onclick="libStartEdit('${x.k}',${x.i})">✎</button><button title="Delete" style="flex:0 0 44px;text-align:center;color:#c62828" onclick="libDel('${x.k}',${x.i})">✕</button>`:''}</div>`};
+  const help=`<div class="warn" style="margin:6px 0"><b>How quick remarks work</b><br>
+   • Tap <b>H</b>, <b>B</b> or <b>C</b> above to see only that kind (All shows every one, Hazard first).<br>
+   • <b>Tap a remark</b> to add it to this report. Another with the same rating joins the same line.<br>
+   • <b>Type your own</b> below: <i>Add as…</i> puts it on this report only; <i>Add + save to quick list</i> also keeps it for next time.<br>
+   • <b>To change or delete a saved remark:</b> tap <b>Edit list</b>, then <b>✎</b> to reword it (or change H/B/C) and tap <b>Save</b>, or <b>✕</b> to delete it. Tap <b>Done editing</b> when finished.<br>
+   • Changes save on <b>this device</b>. To put them in the main app, go to Reports → <b>Export comments</b> and send the file to Claude.</div>`;
   const cnt=f=>f==='All'?all.length:all.filter(x=>x.r===f).length;
   const fr=modFilter==='All'?'C':modFilter;
   h+=`<div style="margin-top:6px">
    <div class="btns" style="margin-bottom:8px">${['H','B','C','All'].map(f=>`<button class="${modFilter===f?'on':''}" style="padding:0 10px" onclick="modFilter='${f}';drawMod()">${f==='All'?'All':f+' '+RNAME[f]} <span style="opacity:.7">(${cnt(f)})</span></button>`).join('')}</div>
    <div style="display:flex;align-items:center;margin:2px 0 2px"><span class="small" style="flex:1"><b>Quick ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}remarks</b> — tap to add</span>
-     <button class="pbtn sec" style="padding:4px 10px;font-size:13px" onclick="modEdit=!modEdit;drawMod()">${modEdit?'Done editing':'Edit list'}</button></div>
-   <div class="canned">${shown.map(x=>`<div style="display:flex;gap:6px"><button style="flex:1" onclick="addCanned('${x.k}',${x.i})"><b style="color:${x.r==='H'?'#b23a2a':x.r==='B'?'#b26a00':'#6b4f36'}">${x.r||'–'}</b>&nbsp; ${esc(x.t)}${x.k==='*'?' <span class="small">(all items)</span>':''}</button>${modEdit?`<button style="flex:0 0 44px;text-align:center;color:#c62828" onclick="libDel('${x.k}',${x.i})">✕</button>`:''}</div>`).join('')||`<div class="small">No ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}quick remarks for this item yet — type one above and tap “Add + save”.</div>`}</div>
+     <button class="pbtn sec" style="padding:4px 10px;font-size:13px;margin-right:6px" onclick="modHelp=!modHelp;drawMod()">${modHelp?'Hide help':'? How to'}</button>
+     <button class="pbtn sec" style="padding:4px 10px;font-size:13px" onclick="modEdit=!modEdit;modEditing=null;drawMod()">${modEdit?'Done editing':'Edit list'}</button></div>
+   ${modHelp?help:''}${modEdit?'<div class="small" style="margin:2px 0 4px">Editing: tap ✎ to reword a remark, ✕ to delete it.</div>':''}
+   <div class="canned">${shown.map(row).join('')||`<div class="small">No ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}quick remarks for this item yet — type one above and tap “Add + save”.</div>`}</div>
    <div class="small" style="margin-top:10px"><b>Or type your own ${modFilter==='All'?'':RNAME[modFilter].toLowerCase()+' '}remark</b> (new line = new printed line)</div>
    <textarea id="draft" style="width:100%;min-height:58px;padding:7px;border:1px solid #b5a794;border-radius:7px;margin:4px 0" oninput="modDraft=this.value">${esc(modDraft)}</textarea>
    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -552,6 +568,10 @@ function addDraft(keep){const t=(modDraft||'').trim();if(!t){const d=$('#draft')
   const rt=modFilter==='All'?'C':modFilter;addRemark(modId,rt,t);
   if(keep){const k=$('#draftAll')&&$('#draftAll').checked?'*':modId;LIB[k]=LIB[k]||[];if(!LIB[k].some(x=>x.t===t&&x.r===rt)){LIB[k].push({r:rt,t});saveLib()}}
   modDraft='';save();drawMod()}
+function libStartEdit(k,i){modEditing=k+'#'+i;window._edR=null;window._edT=null;drawMod();setTimeout(()=>{const t=$('#edT');if(t)t.focus()},60)}
+function libSaveEdit(k,i){const old=LIB[k][i];const t=($('#edT').value||'').trim();if(!t)return;const r=window._edR||old.r;
+  if(old.t!==t&&(DEF_LIB[k]||[]).some(d=>d[1]===old.t)){LIBDEL.push(k+'|'+old.t);LS.set('mwtish_libdel',LIBDEL)}
+  LIB[k][i]={r,t};saveLib();modEditing=null;window._edR=window._edT=null;drawMod()}
 function libDel(k,i){const x=LIB[k][i];if(!confirm('Remove from quick list?\n\n'+x.t))return;LIB[k].splice(i,1);
   if((DEF_LIB[k]||[]).some(d=>d[1]===x.t)){LIBDEL.push(k+"|"+x.t);LS.set("mwtish_libdel",LIBDEL)}saveLib();if(modId)drawMod()}
 function libAdd(id,i){const m=rec(id).rem[i];const t=(m.t||'').trim();if(!t)return;LIB[id]=LIB[id]||[];if(!LIB[id].some(x=>x.t===t)){LIB[id].push({r:m.r,t});saveLib()}drawMod()}
