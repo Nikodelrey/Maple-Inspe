@@ -91,6 +91,24 @@ main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
 #reportZoom{transform-origin:0 0;width:816px}
 #reportZoom .pg{margin:0 0 14px;box-shadow:0 1px 6px rgba(0,0,0,.25)}
 .hide{display:none!important}
+details.vbox{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 12px;padding:8px 12px}
+details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4px 0;font-size:15px}
+.sumh{font-size:14px;margin:10px 0 6px;font-weight:700}
+.sumh.haz{color:#b23a2a}.sumh.bel{color:#b26a00}
+.sumlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sumlist li{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fdfaf5;cursor:pointer}
+.sumlist li .where{font-size:12px;color:#7a6b5c;text-transform:uppercase;letter-spacing:.04em}
+.sumlist li .what{font-weight:600}
+.sumlist li .cmt{font-size:14px;color:#6b5d4f;font-style:italic;margin-top:3px;white-space:pre-wrap}
+.sumlist li.none{cursor:default;color:#7a6b5c}
+.spbox{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fdfaf5;margin:6px 0;display:flex;flex-direction:column;gap:6px}
+.spbox .where{font-size:12px;color:#7a6b5c;text-transform:uppercase;letter-spacing:.04em;text-decoration:underline;cursor:pointer}
+.spbox .sptext{font-size:14px;color:#6b5d4f;font-style:italic;white-space:pre-wrap}
+.spword{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.spword .bad{font-weight:700;color:#b23a2a;text-decoration:underline wavy #b23a2a;text-underline-offset:3px;margin-right:4px}
+.spword button{border:1px solid #b5a794;background:#fff;border-radius:6px;padding:5px 10px;font-size:14px}
+.spword button.fix{border-color:var(--sel);color:var(--sel);font-weight:600}
+@keyframes flash{0%{background:#f6dcb8}100%{background:transparent}}.flash{animation:flash 1.6s ease-out}
 
 /* ---------- printed report ---------- */
 .pg{width:816px;height:1056px;position:relative;background:#fff;color:#000;font-family:"Times New Roman",Times,serif;font-size:12.5px;overflow:hidden;line-height:1.2}
@@ -148,8 +166,14 @@ main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
     <div class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button class="pbtn" onclick="doPrint()">Print / Save PDF</button>
       <button class="pbtn" onclick="saveJobFile()">Save report file (.json)</button>
+      <button class="pbtn sec" onclick="checkSpellNow()">Check spelling</button>
       <button class="pbtn sec" onclick="go(lastTab||'addr')">Back to editing</button>
     </div>
+    <details class="vbox noprint" id="sumBox" open><summary>Summary for the client — hazards &amp; below minimum</summary><div id="sumBody"></div></details>
+    <details class="vbox noprint" id="spellBox"><summary>Spelling check</summary>
+      <div style="display:flex;gap:8px;align-items:center;margin:6px 0"><button class="pbtn" id="bSpell" onclick="runSpellCheck()">Check spelling</button></div>
+      <div class="small" id="spellMsg">Checks every comment on this report. The first check needs an internet connection; after that it also works offline.</div>
+      <div id="spellOut"></div></details>
     <div id="reportWrap"><div id="reportZoom"></div></div>
   </section>
 </main>
@@ -164,8 +188,9 @@ main{max-width:900px;margin:0 auto;padding:10px 10px 90px}
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='2.0', APP_DATE='Nov 14, 2026';
+const APP_VER='2.1', APP_DATE='Nov 15, 2026';
 const CHANGES=[
+ ['2.1','Nov 15, 2026','Spelling check and hazard / below-minimum summary (on the Print screen), same as the St. Paul app'],
  ['2.0','Nov 14, 2026','Edit quick remarks (✎ in Edit list); "? How to" help button; quick remarks listed Hazard, Below, Comment'],
  ['1.9','Nov 14, 2026','Quick remarks built from your sample reports; tapping more remarks with the same rating adds to one line (1. B Missing handrail. Missing guardrail.)'],
  ['1.8','Nov 13, 2026','Export comments: pick which comments to include'],
@@ -937,6 +962,7 @@ function renderReport(){
   if(!J.a.address)msgs.push('No property address yet.');
   if(missing.length)msgs.push('<b>B / C / H without a written comment:</b> '+missing.join(', '));
   if(blanks.length)msgs.push('<b>Not rated yet:</b> '+blanks.join(', '));
+  renderSummary();
   $('#viewMsgs').innerHTML=msgs.length?`<div class="warn">${msgs.join('<br>')}</div>`:'';
 }
 function fitZoom(){const w=$('#reportWrap');const avail=Math.min($('#main').clientWidth-20,816);const s=avail/816;const z=$('#reportZoom');
@@ -944,6 +970,94 @@ function fitZoom(){const w=$('#reportWrap');const avail=Math.min($('#main').clie
 window.addEventListener('resize',()=>{if(curTab==='view')fitZoom()});
 function doPrint(){if(!J)return;if(curTab!=='view')go('view');else renderReport();const t=document.title;document.title=fileBase();setTimeout(()=>{window.print();setTimeout(()=>document.title=t,1500)},300)}
 window.addEventListener('beforeprint',()=>{if(J&&curTab==='view'){}});
+
+/* ---------- summary for the client (hazards / below minimum) ---------- */
+function allItemSlots(){const out=[];SECTIONS.forEach(s=>s.items.forEach(([id])=>{if(id==='39loc'||id==='39hw')return;
+  (s.unit?J.units.map((_,u)=>u):[0]).forEach(u=>out.push({id,u,sec:s,unit:!!s.unit}))}));return out}
+function slotWhere(x){return esc(x.sec.title.replace(/ —.*$/,''))+(x.unit&&J.units.length>1?' · '+esc(unitLabel(x.u)):'')}
+function renderSummary(){
+  const haz=[],bel=[];
+  allItemSlots().forEach(x=>{const r=peek(x.id,x.u);const vs=ordVal(r.v).split(',');const m=ITEM[x.id];
+    const txt=rt=>(r.rem||[]).filter(q=>q.r===rt&&q.t.trim()).map(q=>q.t.trim()).join('\n');
+    const li=rt=>`<li onclick="gotoItem('${x.id}',${x.u})"><div class="where">${slotWhere(x)}</div><div class="what">${esc(remLabel(x.id))} ${esc(m.label)}</div>${txt(rt)?`<div class="cmt">${esc(txt(rt))}</div>`:'<div class="cmt" style="color:#b23a2a">No comment written yet</div>'}</li>`;
+    if(vs.includes('H'))haz.push(li('H'));if(vs.includes('B'))bel.push(li('B'))});
+  ['39loc','39hw'].forEach(id=>J.units.forEach((_,u)=>{if(peek(id,u).v==='H')haz.push(`<li onclick="gotoItem('${id}',${u})"><div class="where">Hallways${J.units.length>1?' · '+esc(unitLabel(u)):''}</div><div class="what">39. Smoke detector(s) — ${esc(ITEM[id].label)}</div></li>`)}));
+  $('#sumBody').innerHTML=`<div class="sumh haz">Hazardous conditions (${haz.length})</div><ol class="sumlist">${haz.join('')||'<li class="none">No hazardous conditions marked.</li>'}</ol>
+   <div class="sumh bel">Below minimum (${bel.length})</div><ol class="sumlist">${bel.join('')||'<li class="none">Nothing marked below minimum.</li>'}</ol>`;
+}
+function gotoItem(id,u){const m=ITEM[id];const s=SECTIONS.find(x=>x.id===m.sec);if(m.unit)curUnit=u||0;go(s.tab);
+  setTimeout(()=>{const el=$('#it_'+id);if(el){el.scrollIntoView({block:'center'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}},80)}
+
+/* ---------- spelling check (same dictionary and word list as the St. Paul app) ---------- */
+const TYPO_V="1.2.4",TYPO_BASE=`https://cdn.jsdelivr.net/npm/typo-js@${TYPO_V}/`;
+const TRADE_WORDS=("gfci afci splc tish hvac romex soffit soffits fascia downspout downspouts drywall subfloor flue flues damper dampers "+
+  "joist joists handrail handrails guardrail guardrails sump backflow pex csst egress knob tube bx sheathing shingles shingle flashing "+
+  "efflorescence spalling tuckpoint tuckpointing caulk caulking backdraft backdrafting hydronic boiler boilers condensate thermocouple "+
+  "aquastat tpr grout grouting bonding grounding ungrounded wye cleanout cleanouts trap traps lavatory lav whirlpool sillcock sillcocks "+
+  "hosebibb hosebibbs hosebib hosebibs stairway stairways newel balusters baluster riser risers tread treads stringer stringers rafters rafter "+
+  "purlins eave eaves gable dormer dormers kneewall kneewalls mudsill sill sills lintel lintels sq ft cmu abs pvc cpvc pb nm "+
+  "vermiculite batt batts blown cellulose fiberglass rockwool sone btu btus cfm amp amps ampacity breaker breakers subpanel subpanels "+
+  "bushing bushings jbox jboxes j-box gfi afi ul cpsc nec irc ibc dwv waste vent vented unvented backsplash countertop countertops "+
+  "smoke co detector detectors ductwork ducts duct plenum plenums firestop firestopping firebox hearth chimney chimneys liner "+
+  "unlined crickets cricket gutters gutter tuckpointed parging parge rim sistered sister sistering shim shims shimmed weatherstrip "+
+  "weatherstripping thermopane handrailing nonconforming tamperproof pre preexisting stpaul ramsey xcel centerpoint deadbolt deadbolts balancer balancers keyed hatch steamer saddle corrugated unvented indexed jumper subpanel tuck nw ne sw se mech exhaust gfi maplewood").split(" ");
+let typo=null;const spellMem={};
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const myWords=()=>new Set(JSON.parse(lsGet("tishsp.words")||"[]"));
+async function loadTypo(){
+  if(typo)return typo;
+  const get=async(f)=>{const key="tishsp.typo."+TYPO_V+"."+f;let txt=spellMem[key]||lsGet(key);if(txt)return txt;const res=await fetch(TYPO_BASE+f);if(!res.ok)throw new Error("download");txt=await res.text();spellMem[key]=txt;lsSet(key,txt);return txt};
+  const [js,aff,dic]=await Promise.all([get("typo.js"),get("dictionaries/en_US/en_US.aff"),get("dictionaries/en_US/en_US.dic")]);
+  if(!window.Typo){const sc=document.createElement("script");sc.textContent=js;document.head.appendChild(sc)}
+  await new Promise(r=>setTimeout(r,30));
+  typo=new window.Typo("en_US",aff,dic);return typo;
+}
+const OK_NUM=/^(\d+(st|nd|rd|th|v|a|amp|amps|gal|ft|in|w|kw|btu|btus|psi|mm|cm|yr|yrs|s|'s|hp|lb|lbs|ga|awg)|\d*x\d+|r\d+|\d+x\d+x\d+)$/i;
+function badWords(txt,mine){
+  const seen=new Set(),bad=[];
+  (txt.match(/[A-Za-z0-9][A-Za-z0-9']*[A-Za-z0-9]|[A-Za-z]/g)||[]).forEach(w=>{
+    if(/[0-9]/.test(w)){if(/[A-Za-z]/.test(w)&&!OK_NUM.test(w)&&!seen.has(w)){seen.add(w);bad.push(w)}return}
+    const base=w.replace(/'s$/i,"");
+    if(base.length<3||seen.has(w))return;seen.add(w);
+    if(/^[A-Z]+s?$/.test(base))return;
+    const lw=base.toLowerCase();
+    if(TRADE_WORDS.includes(lw)||mine.has(lw))return;
+    if(typo.check(base)||typo.check(lw)||typo.check(lw.charAt(0).toUpperCase()+lw.slice(1)))return;
+    bad.push(w);
+  });return bad;
+}
+const DIGIT_KEYS={"1":"q","2":"w","3":"e","4":"r","5":"t","6":"y","7":"u","8":"i","9":"o","0":"p"};
+function spellSuggest(w,txt){
+  if(!/[0-9]/.test(w))return typo.suggest(w,3);
+  const out=[],add=c=>{if(c&&!out.includes(c)&&(typo.check(c)||typo.check(c.toLowerCase())))out.push(c)};
+  if(/[0-9]$/.test(w)&&txt&&txt.includes("("+w))out.push(w.replace(/[0-9]+$/,")"));
+  add(w.replace(/[0-9]/g,d=>DIGIT_KEYS[d]));add(w.replace(/[0-9]/g,"o"));add(w.replace(/[0-9]/g,""));
+  if(out.length<3){try{typo.suggest(w.replace(/[0-9]/g,d=>DIGIT_KEYS[d]),3).forEach(c=>{if(out.length<3&&!out.includes(c))out.push(c)})}catch(e){}}
+  return out.slice(0,3);
+}
+function spellTargets(){const out=[];
+  if((J.a.comments||'').trim())out.push({where:'Page 1 · Comments',get:()=>J.a.comments,set:v=>{J.a.comments=v}});
+  allItemSlots().forEach(x=>{const r=peek(x.id,x.u);(r.rem||[]).forEach(q=>{if(!q.t.trim())return;
+    out.push({id:x.id,u:x.u,where:slotWhere(x)+' · '+esc(remLabel(x.id))+' '+(q.r||''),get:()=>q.t,set:v=>{q.t=v}})})});
+  return out}
+let SPT=[];
+function runSpell(){
+  const mine=myWords();let html='',n=0;SPT=spellTargets();
+  SPT.forEach((b,bi)=>{const txt=b.get();const bad=badWords(txt,mine);if(!bad.length)return;n+=bad.length;
+    html+=`<div class="spbox"><div class="where" onclick="${b.id?`gotoItem('${b.id}',${b.u})`:`go('addr')`}">${b.where} ›</div><div class="sptext">${esc(txt)}</div>`+
+      bad.map(w=>{let sug=[];try{sug=spellSuggest(w,txt)}catch(e){}
+        return `<div class="spword"><span class="bad">${esc(w)}</span>${sug.map(sg=>`<button class="fix" onclick="spFix(${bi},'${encodeURIComponent(w)}','${encodeURIComponent(sg)}')">${esc(sg)}</button>`).join('')}${sug.length?'':'<span class="small">No suggestions</span>'}<button onclick="spIgnore('${encodeURIComponent(w)}')">Ignore</button></div>`}).join('')+`</div>`});
+  $('#spellOut').innerHTML=html;
+  $('#spellMsg').textContent=n?`${n} word${n>1?'s':''} to look at. Tap a suggestion to fix it, or Ignore to keep the word and remember it.`:'No spelling problems found in your comments.';
+}
+function spFix(bi,w,sg){w=decodeURIComponent(w);sg=decodeURIComponent(sg);const b=SPT[bi];
+  const re=new RegExp("(^|[^A-Za-z0-9'])"+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![A-Za-z0-9'])","g");
+  b.set(b.get().replace(re,(m,p)=>p+sg));save();renderReport();runSpell()}
+function spIgnore(w){w=decodeURIComponent(w);const m=myWords();m.add(w.replace(/'s$/i,"").toLowerCase());lsSet("tishsp.words",JSON.stringify([...m]));runSpell()}
+async function runSpellCheck(){const b=$('#bSpell');b.disabled=true;b.textContent='Checking…';
+  try{await loadTypo();runSpell()}catch(e){$('#spellMsg').textContent="Couldn't load the dictionary. Connect to the internet and try again; after one successful check it works offline."}
+  b.disabled=false;b.textContent='Check spelling'}
+function checkSpellNow(){const d=$('#spellBox');d.open=true;d.scrollIntoView({block:'start'});runSpellCheck()}
 
 /* ---------- boot ---------- */
 (function boot(){
