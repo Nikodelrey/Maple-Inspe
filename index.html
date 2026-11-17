@@ -169,6 +169,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
       <button class="pbtn sec" onclick="checkSpellNow()">Check spelling</button>
       <button class="pbtn sec" onclick="go(lastTab||'addr')">Back to editing</button>
     </div>
+    <div class="warn noprint hide" id="printTip"><b>Print screen didn't open?</b> 
+      On iPad: tap the <b>Share</b> button (square with arrow) → <b>Print</b>. Then <b>pinch out</b> on the page preview (or tap the share icon at the top of the print screen) → <b>Save to Files</b> to keep the PDF.
+      If you opened the app from the home-screen icon and Share isn't there, open the app's link in Safari instead.</div>
     <details class="vbox noprint" id="sumBox" open><summary>Summary for the client — hazards &amp; below minimum</summary><div id="sumBody"></div></details>
     <details class="vbox noprint" id="spellBox"><summary>Spelling check</summary>
       <div style="display:flex;gap:8px;align-items:center;margin:6px 0"><button class="pbtn" id="bSpell" onclick="runSpellCheck()">Check spelling</button></div>
@@ -188,8 +191,12 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='2.1', APP_DATE='Nov 15, 2026';
+const APP_VER='2.5', APP_DATE='Nov 17, 2026';
 const CHANGES=[
+ ['2.5','Nov 17, 2026','Print / Save PDF opens the print screen right away on iPad; help if it does not'],
+ ['2.4','Nov 17, 2026','Typed remark is added automatically when you tap Done'],
+ ['2.3','Nov 17, 2026','Volts choices are now 120 and 120/240 (app and printed report)'],
+ ['2.2','Nov 16, 2026','Offline mode (needs sw.js uploaded next to index.html)'],
  ['2.1','Nov 15, 2026','Spelling check and hazard / below-minimum summary (on the Print screen), same as the St. Paul app'],
  ['2.0','Nov 14, 2026','Edit quick remarks (✎ in Edit list); "? How to" help button; quick remarks listed Hazard, Below, Comment'],
  ['1.9','Nov 14, 2026','Quick remarks built from your sample reports; tapping more remarks with the same rating adds to one line (1. B Missing handrail. Missing guardrail.)'],
@@ -456,7 +463,7 @@ function elecHTML(){const e=J.elec;
   return `<div class="spec">
    <div class="row"><span class="lab"># of Services</span>${rad('svc',['1','2','3'],e.svc,'setSvc')}<span>More:</span><input value="${esc(e.svcMore)}" oninput="J.elec.svcMore=this.value;save()" style="width:60px"></div>
    <div class="row"><span class="lab">7. Amps</span>${amps}<span>Other:</span><input value="${esc(e.ampsOther)}" oninput="J.elec.ampsOther=this.value;save()" style="width:70px"></div>
-   <div class="row"><span class="lab">Volts</span>${rad('volts',['115','115/230'],e.volts,'setVolts')}</div>
+   <div class="row"><span class="lab">Volts</span>${rad('volts',['120','120/240'],e.volts,'setVolts')}</div>
    <div class="row small">BASEMENT ONLY: (items 8–9)</div></div>`}
 function setSvc(v){J.elec.svc=v;J.elec.svcMore='';save();renderEdit()}
 function setVolts(v){J.elec.volts=J.elec.volts===v?'':v;save();renderEdit()}
@@ -530,7 +537,8 @@ function openRem(id,newRating){
   drawMod(-1);
   $('#mod').classList.add('on');
 }
-function closeMod(){$('#mod').classList.remove('on');const id=modId;modId=null;if(!id)return;
+function closeMod(){if(modId&&(modDraft||'').trim()){addRemark(modId,modFilter==='All'?'C':modFilter,modDraft.trim());modDraft=''}
+  $('#mod').classList.remove('on');const id=modId;modId=null;if(!id)return;
   const r=peek(id);r.rem=ordRem((r.rem||[]).filter(m=>m.t.trim()||m.keep));r.v=ordVal(r.v);save();
   if(curTab==='view')renderReport(); else { refreshItem(id); if(id==='39'){refreshItem('39loc');refreshItem('39hw')} } }
 const RNAME={H:'Hazard',B:'Below min.',C:'Comment'};
@@ -561,7 +569,7 @@ function drawMod(focusIdx){
   const help=`<div class="warn" style="margin:6px 0"><b>How quick remarks work</b><br>
    • Tap <b>H</b>, <b>B</b> or <b>C</b> above to see only that kind (All shows every one, Hazard first).<br>
    • <b>Tap a remark</b> to add it to this report. Another with the same rating joins the same line.<br>
-   • <b>Type your own</b> below: <i>Add as…</i> puts it on this report only; <i>Add + save to quick list</i> also keeps it for next time.<br>
+   • <b>Type your own</b> below: <i>Add as…</i> (or just <b>Done</b>) puts it on this report only; <i>Add + save to quick list</i> also keeps it for next time.<br>
    • <b>To change or delete a saved remark:</b> tap <b>Edit list</b>, then <b>✎</b> to reword it (or change H/B/C) and tap <b>Save</b>, or <b>✕</b> to delete it. Tap <b>Done editing</b> when finished.<br>
    • Changes save on <b>this device</b>. To put them in the main app, go to Reports → <b>Export comments</b> and send the file to Claude.</div>`;
   const cnt=f=>f==='All'?all.length:all.filter(x=>x.r===f).length;
@@ -625,7 +633,8 @@ function showJobs(){
   $('#topAddr').textContent='Maplewood TISH — Reports  (v'+APP_VER+')';
 }
 function createJob(){J=newJob();curUnit=0;JOBS.unshift(J);save();flush();go('addr')}
-function openJob(id){J=JOBS.find(j=>j.id===id);curUnit=0;LS.set(K_CUR,id);go('addr')}
+function fixVolts(j){if(j&&j.elec){if(j.elec.volts==='115')j.elec.volts='120';if(j.elec.volts==='115/230')j.elec.volts='120/240'}return j}
+function openJob(id){J=fixVolts(JOBS.find(j=>j.id===id));curUnit=0;LS.set(K_CUR,id);go('addr')}
 function copyJob(id){const s=JOBS.find(j=>j.id===id);const c=JSON.parse(JSON.stringify(s));c.id='j'+Date.now().toString(36);c.created=c.updated=Date.now();c.a.date=today();c.a.filed=false;JOBS.unshift(c);J=c;flush();go('addr')}
 function delJob(id){const j=JOBS.find(x=>x.id===id);if(!confirm('Delete report for '+(j.a.address||'(no address)')+'?'))return;JOBS=JOBS.filter(x=>x.id!==id);if(J&&J.id===id)J=null;flush();showJobs()}
 function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
@@ -674,7 +683,7 @@ function openJobFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const r
   const d=JSON.parse(rd.result);if(d.app==='maplewood-tish-comments'){alert('That is a comments file — use Import comments.');return}const j=d.job||(d.a&&d.units?d:null);if(!j){if(d.jobs){alert('That is a full backup — use Import instead.')}else alert('Not a Maplewood report file.');return}
   const i=JOBS.findIndex(x=>x.id===j.id);
   if(i>=0){if(!confirm('This report ('+(j.a.address||'')+') is already on this device. Replace it with the file version?')){J=JOBS[i];curUnit=0;go('addr');return}JOBS[i]=j}else JOBS.unshift(j);
-  J=j;curUnit=0;flush();go('addr')}catch(e){alert('Could not read that file.')}};rd.readAsText(f)}
+  J=fixVolts(j);curUnit=0;flush();go('addr')}catch(e){alert('Could not read that file.')}};rd.readAsText(f)}
 function exportAll(){flush();download('maplewood-tish-backup-'+today()+'.json',JSON.stringify({app:'maplewood-tish',v:1,jobs:JOBS,settings:SET,lib:LIB},null,1))}
 function importFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);const jobs=d.jobs||(d.job?[d.job]:(d.a?[d]:[]));let n=0;
   jobs.forEach(j=>{const i=JOBS.findIndex(x=>x.id===j.id);if(i<0){JOBS.push(j);n++}else if((j.updated||0)>(JOBS[i].updated||0)){JOBS[i]=j;n++}});
@@ -822,7 +831,7 @@ function page2(){
    ${row('',`<b style="font-size:13.5px">ELECTRICAL SERVICE(S)</b> # of Services`,svc,{a:'elec'})}
    ${row('7.','Service size:',null,{nodots:1})}
    <div class="r"><span class="n"></span>Amps: &nbsp;30 ${amp('30')} 60 ${amp('60')} 100 ${amp('100')} 150 ${amp('150')} Other ${amp('other')}</div>
-   <div class="r"><span class="n"></span>Volts: &nbsp;115 <span class="bl" style="width:30px">${e.volts==='115'?'X':''}</span>&nbsp;&nbsp; 115/220 <span class="bl" style="width:30px">${e.volts==='115/230'?'X':''}</span></div>
+   <div class="r"><span class="n"></span>Volts: &nbsp;120 <span class="bl" style="width:30px">${e.volts==='120'?'X':''}</span>&nbsp;&nbsp; 120/240 <span class="bl" style="width:30px">${e.volts==='120/240'?'X':''}</span></div>
    ${hrow('BASEMENT ONLY:')}
    ${itemRow('8',0)}${itemRow('9',0)}
    <div style="height:44px"></div>
@@ -968,7 +977,12 @@ function renderReport(){
 function fitZoom(){const w=$('#reportWrap');const avail=Math.min($('#main').clientWidth-20,816);const s=avail/816;const z=$('#reportZoom');
   z.style.transform=`scale(${s})`;w.style.width=(816*s)+'px';w.style.height=(z.scrollHeight*s)+'px'}
 window.addEventListener('resize',()=>{if(curTab==='view')fitZoom()});
-function doPrint(){if(!J)return;if(curTab!=='view')go('view');else renderReport();const t=document.title;document.title=fileBase();setTimeout(()=>{window.print();setTimeout(()=>document.title=t,1500)},300)}
+function doPrint(){if(!J)return;if(curTab!=='view')go('view');else renderReport();
+  // print right inside the tap — iPad Safari ignores print() if it's delayed
+  const t=document.title;document.title=fileBase();
+  try{window.print()}catch(e){}
+  setTimeout(()=>document.title=t,2000);
+  const tip=$('#printTip');if(tip)tip.classList.remove('hide')}
 window.addEventListener('beforeprint',()=>{if(J&&curTab==='view'){}});
 
 /* ---------- summary for the client (hazards / below minimum) ---------- */
@@ -1062,9 +1076,11 @@ function checkSpellNow(){const d=$('#spellBox');d.open=true;d.scrollIntoView({bl
 /* ---------- boot ---------- */
 (function boot(){
   document.body.insertAdjacentHTML('beforeend',`<datalist id="insTypes"><option>Cellulose</option><option>Fiberglass batts</option><option>Fiberglass loose fill</option><option>Rock wool</option><option>Vermiculite</option><option>Rigid foam</option><option>Spray foam</option></datalist>`);
-  const cur=LS.get(K_CUR,null);J=JOBS.find(j=>j.id===cur)||null;
+  const cur=LS.get(K_CUR,null);J=fixVolts(JOBS.find(j=>j.id===cur))||null;
   if(J)go('addr');else showJobs();
 })();
 </script>
+<script>/* offline mode: needs sw.js next to index.html */
+if('serviceWorker' in navigator&&location.protocol==='https:'||location.hostname==='localhost'){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}</script>
 </body>
 </html>
