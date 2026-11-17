@@ -190,8 +190,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='2.7', APP_DATE='Nov 17, 2026';
+const APP_VER='2.8', APP_DATE='Nov 17, 2026';
 const CHANGES=[
+ ['2.8','Nov 17, 2026','Added your 4 new comments (items 1, 8, 76) to the built-in list'],
  ['2.7','Nov 17, 2026','Saving no longer creates an extra text.txt file'],
  ['2.6','Nov 17, 2026','Save PDF button — makes the PDF directly (works from the home-screen icon)'],
  ['2.5','Nov 17, 2026','Print / Save PDF opens the print screen right away on iPad; help if it does not'],
@@ -230,11 +231,11 @@ const BOILER62='This evaluation is not the same as a buyers evaluation. Buyers a
 const SMOKE39='Monitor smoke and carbon monoxide detectors batteries, age and operation.';
 // Quick remarks: per item, each tagged H (Hazard), B (Below minimum) or C (Comment)
 const DEF_LIB={
- '1':[['B',"Missing handrail"],['B',"Missing guardrail"],['B',"Handrail ends lack returns"],['B',"Openings in guardrail(s) greater than 4\""],['B',"Low headroom (less than 6' 8\")"]],
+ '1':[['B',"Missing handrail"],['B',"Improper rise/run"],['B',"Missing guardrail"],['B',"Handrail ends lack returns"],['B',"Openings in guardrail(s) greater than 4\""],['B',"Low headroom (less than 6' 8\")"]],
  '3':[['B',"Cracks observed on foundation"],['C',"Basement mostly finished, limited view"],['C',"Basement partially finished, limited view"],['C',"Not visible, basement walls covered by insulation"],['C',"Condo unit, common areas not inspected; Exterior, garage, hallways, etc..."]],
  '4':[['C',"Stains/efflorescence observed"],['C',"Stains observed"]],
  '5':[['C',"Limited view"]],
- '8':[['H',"Missing grounding jumper on house side of water meter"],['H',"Grounding jumper disconnected on street side of water meter"],['B',"Panel not fully indexed"],['B',"Access to the panel impeded"],['C',"Condo unit, unknown amperage. Access to subpanel only"]],
+ '8':[['H',"Missing grounding jumper on house side of water meter"],['H',"Grounding jumper disconnected on street side of water meter"],['H',"Missing breakers."],['B',"Panel not fully indexed"],['B',"Access to the panel impeded"],['C',"Limited view, grounding not fully visible"],['C',"Condo unit, unknown amperage. Access to subpanel only"]],
  '9':[['H',"Open junction boxes/exposed wires"],['B',"Extension cord wiring in use"],['B',"Extension cord wiring to the sump pump"],['B',"Improper wire run(s)/loose wiring"],['B',"Loose outlet box"]],
  '10':[['B',"Drain was dry, possible sewer gas entrance point"],['C',"Can't get cover(s) off to evaluate"]],
  '11':[['H',"Water is off, can't evaluate"],['B',"S-trap/unvented waste piping at laundry sink"],['B',"Corrosion observed on waste piping"],['B',"Slow drain at laundry sink"],['C',"Limited view"]],
@@ -278,7 +279,7 @@ const DEF_LIB={
  '73':[['B',"Spalling brick"],['C',"Limited view from ground"]],
  '74':[['H',"Missing electrical meter at exterior box"],['H',"Service wires to garage were lower than 12'"],['H',"Service wires missing sheathing"]],
  '75':[['C',"Limited view from ground"],['C',"Not applicable, tuck-under"]],
- '76':[['B',"Siding lacks clearance from grade"],['B',"Trim decayed/damaged"],['B',"Damaged drywall/damaged fire protection between house and garage"],['C',"Interior was not viewed, door did not open"]],
+ '76':[['B',"Siding lacks clearance from grade"],['B',"Trim decayed/damaged"],['B',"Damaged drywall/damaged fire protection between house and garage"],['B',"Gap in drywall/fire protection between house and garage"],['C',"Interior was not viewed, door did not open"]],
  '77':[['B',"Cracked slab"],['B',"Cracks observed"]],
  '80':[['B',"No power to outlet(s)"],['B',"Reverse polarity outlet(s)"]],
  '82':[['C',"Fireplace components not fully visible"]],
