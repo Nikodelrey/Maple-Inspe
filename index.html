@@ -190,8 +190,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='2.6', APP_DATE='Nov 17, 2026';
+const APP_VER='2.7', APP_DATE='Nov 17, 2026';
 const CHANGES=[
+ ['2.7','Nov 17, 2026','Saving no longer creates an extra text.txt file'],
  ['2.6','Nov 17, 2026','Save PDF button — makes the PDF directly (works from the home-screen icon)'],
  ['2.5','Nov 17, 2026','Print / Save PDF opens the print screen right away on iPad; help if it does not'],
  ['2.4','Nov 17, 2026','Typed remark is added automatically when you tap Done'],
@@ -641,7 +642,7 @@ function download(name,text){const a=document.createElement('a');a.href=URL.crea
 function fileBase(){return ((J.a.address||'Maplewood report').replace(/[\\/:*?"<>|]/g,'').trim()+' Maplewood TISH')}
 async function shareOrDownload(name,text){
   try{const file=new File([text],name,{type:'application/json'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}
   download(name,text)}
 function libCount(L){return Object.values(L||{}).reduce((a,v)=>a+(v||[]).length,0)}
 let EXSEL=null;
@@ -676,7 +677,7 @@ async function saveJobFile(){
   if(!J)return;flush();const name=fileBase()+'.json';
   const text=JSON.stringify({app:'maplewood-tish',v:1,saved:new Date().toISOString(),job:J},null,1);
   try{const file=new File([text],name,{type:'application/json'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}
   download(name,text);
 }
 function openJobFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{
@@ -1152,7 +1153,7 @@ async function savePdf(){
   const name=fileBase()+'.pdf';let bytes;
   try{bytes=buildPdfFromPages([...document.querySelectorAll('#reportZoom .pg')])}catch(e){alert("Couldn't make the PDF: "+e.message);return}
   const file=new File([bytes],name,{type:'application/pdf'});
-  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}
   const url=URL.createObjectURL(file);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
 }
 
