@@ -190,8 +190,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='3.0', APP_DATE='Nov 17, 2026';
+const APP_VER='3.1', APP_DATE='Nov 17, 2026';
 const CHANGES=[
+ ['3.1','Nov 17, 2026','PDF always includes the maple leaf and your signature (could be left out if tapped too quickly)'],
  ['3.0','Nov 17, 2026','PDF: words fit their exact spots (fixes squeezed spacing like "WARRANTY,BY"); spelling check also checks insulation type'],
  ['2.9','Nov 17, 2026','Multi-unit labels match your old software (Unit: 2  Unit Name: Upper)'],
  ['2.8','Nov 17, 2026','Added your 4 new comments (items 1, 8, 76) to the built-in list'],
@@ -719,7 +720,7 @@ function showSettings(){
    <div class="note"><button class="pbtn red" onclick="if(confirm('Reset quick remarks to the starter list?')){LIB=defLib();saveLib();showSettings()}">Reset quick remarks</button></div></div>
   <div style="display:flex;gap:8px"><button class="pbtn" onclick="saveSettings()">Save settings</button><button class="pbtn sec" onclick="J?go(lastTab):showJobs()">Cancel</button></div>`;
 }
-function sigFile(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{SET.sig=rd.result;LS.set(K_SET,SET);showSettings()};rd.readAsDataURL(f)}
+function sigFile(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{SET.sig=rd.result;prepImg(SET.sig);LS.set(K_SET,SET);showSettings()};rd.readAsDataURL(f)}
 function saveSettings(){
   SET.evaluator=$('#s_ev').value;SET.phone=$('#s_ph').value;SET.zip=$('#s_zip').value;SET.rev=$('#s_rev').value;
   SET.autoRemark=$('#s_auto').checked;SET.useSig=$('#s_sig').checked;
@@ -1104,7 +1105,11 @@ function pdfFontKey(st){const serif=!/arial|helvetica|sans/i.test(st.fontFamily)
 function imgToJpeg(img){try{const c=document.createElement('canvas');c.width=img.naturalWidth||img.width;c.height=img.naturalHeight||img.height;
   const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
   return {w:c.width,h:c.height,data:atob(c.toDataURL('image/jpeg',0.92).split(',')[1])}}catch(e){return null}}
-function buildPdfFromPages(pages){
+// images are converted ahead of time, so the PDF never misses the logo or signature
+const IMGCACHE={};
+function prepImg(src){if(!src||IMGCACHE[src])return;const im=new Image();im.onload=()=>{const j=imgToJpeg(im);if(j)IMGCACHE[src]=j};im.src=src}
+function prepAllImgs(){prepImg(LEAF);prepImg(SET.sig||SIG_DEFAULT);prepImg(SIG_DEFAULT)}
+function buildPdfFromPages(pages){prepAllImgs();
   const PW=612,PH=792,streams=[],images=[];
   pages.forEach(pg=>{
     const pr=pg.getBoundingClientRect();const sc=pr.width/816;      // on-screen zoom
@@ -1114,7 +1119,11 @@ function buildPdfFromPages(pages){
     const line=(x1,y1,x2,y2,w)=>out.push(`${w.toFixed(2)} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
     // borders (underlines, boxes, rules)
     pg.querySelectorAll('*').forEach(el=>{const st=getComputedStyle(el);if(st.display==='none'||st.visibility==='hidden')return;
-      const r=el.getBoundingClientRect();if(!inPage(r))return;
+      const r=el.getBoundingClientRect();
+      if(el.tagName==='IMG'){const j=IMGCACHE[el.getAttribute('src')]||(el.complete&&el.naturalWidth?imgToJpeg(el):null);
+        if(j&&r.top<pr.bottom&&r.left<pr.right){const w=r.width||(r.height*j.w/j.h),h=r.height||(r.width*j.h/j.w);if(w>0&&h>0){const n=images.length;images.push(j);
+          out.push(`q ${(w*K).toFixed(2)} 0 0 ${(h*K).toFixed(2)} ${X(r.left).toFixed(2)} ${Y(r.top+h).toFixed(2)} cm /Im${n} Do Q`)}}return}
+      if(!inPage(r))return;
       const bt=parseFloat(st.borderTopWidth)||0,bb=parseFloat(st.borderBottomWidth)||0,bl=parseFloat(st.borderLeftWidth)||0,br=parseFloat(st.borderRightWidth)||0;
       if(bt&&st.borderTopStyle!=='none'){const w=bt*0.75;line(X(r.left),Y(r.top)-w/2,X(r.right),Y(r.top)-w/2,w)}
       if(bb&&st.borderBottomStyle!=='none'){const w=bb*0.75;line(X(r.left),Y(r.bottom)+w/2,X(r.right),Y(r.bottom)+w/2,w)}
@@ -1125,8 +1134,6 @@ function buildPdfFromPages(pages){
         for(let x=r.left+6*sc;x<r.right-4*sc;x+=step)out.push(`BT /F1 8.25 Tf ${X(x).toFixed(2)} ${y.toFixed(2)} Td (.) Tj ET`)}
       if(el.tagName==='LI'&&el.parentElement&&el.parentElement.tagName==='OL'&&st.listStyleType!=='none'){const fs=parseFloat(st.fontSize)*0.75;const n=[...el.parentElement.children].indexOf(el)+1;
         out.push(`BT /F${pdfFontKey(st)} ${fs.toFixed(2)} Tf ${X(r.left-20*sc).toFixed(2)} ${(Y(r.top)-fs*0.98).toFixed(2)} Td (${n}.) Tj ET`)}
-      if(el.tagName==='IMG'&&el.complete){const j=imgToJpeg(el);if(j){const n=images.length;images.push(j);
-        out.push(`q ${(r.width*K).toFixed(2)} 0 0 ${(r.height*K).toFixed(2)} ${X(r.left).toFixed(2)} ${Y(r.bottom).toFixed(2)} cm /Im${n} Do Q`)}}
     });
     // text, word by word, at the exact spot the browser put it
     const tw=document.createTreeWalker(pg,NodeFilter.SHOW_TEXT);let tn;const rng=document.createRange();
@@ -1174,6 +1181,7 @@ async function savePdf(){
 
 /* ---------- boot ---------- */
 (function boot(){
+  try{prepAllImgs()}catch(e){}
   document.body.insertAdjacentHTML('beforeend',`<datalist id="insTypes"><option>Cellulose</option><option>Fiberglass batts</option><option>Fiberglass loose fill</option><option>Rock wool</option><option>Vermiculite</option><option>Rigid foam</option><option>Spray foam</option></datalist>`);
   const cur=LS.get(K_CUR,null);J=fixVolts(JOBS.find(j=>j.id===cur))||null;
   if(J)go('addr');else showJobs();
