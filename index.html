@@ -190,8 +190,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='2.8', APP_DATE='Nov 17, 2026';
+const APP_VER='2.9', APP_DATE='Nov 17, 2026';
 const CHANGES=[
+ ['2.9','Nov 17, 2026','Multi-unit labels match your old software (Unit: 2  Unit Name: Upper)'],
  ['2.8','Nov 17, 2026','Added your 4 new comments (items 1, 8, 76) to the built-in list'],
  ['2.7','Nov 17, 2026','Saving no longer creates an extra text.txt file'],
  ['2.6','Nov 17, 2026','Save PDF button — makes the PDF directly (works from the home-screen icon)'],
@@ -761,7 +762,7 @@ function footer(top,date){return `<div class="ftr" style="top:${top}px">EVALUATO
   <span style="margin-left:6px">DATE:</span> <span class="bl" style="width:110px">${esc(date)}</span>
   <span style="position:absolute;right:0;top:-2px;text-align:center;line-height:1.05">Page <span class="bl" style="width:20px" data-pg="cur"></span> of <span class="bl" style="width:20px" data-pg="tot"></span><br><span style="font-size:10.5px">${esc(SET.rev)}</span></span></div>`}
 function propAddr(extra){return `<div class="pa">Property Address: <span class="bl" style="width:520px;text-align:left;padding-left:6px">${esc(J.a.address)}${extra?'&nbsp;&nbsp;&nbsp;—&nbsp; '+esc(extra):''}</span></div>`}
-function unitLabel(u){if(J.units.length<2)return '';const n=J.units[u].name;return 'Unit '+(u+1)+(n?' ('+n+')':'')}
+function unitLabel(u){if(J.units.length<2)return '';const n=J.units[u].name;return 'Unit: '+(u+1)+(n?'   Unit Name: '+n:'')}
 
 function page1(){
   const a=J.a,dt=fmtDate(a.date);
@@ -793,7 +794,7 @@ function page1(){
      <span class="b">Single Family</span>${mark('Single Family')}<span class="b" style="margin-left:22px">Duplex</span>&nbsp;${mark('Duplex')}<span class="b" style="margin-left:22px">Townhouse</span>&nbsp;${mark('Townhouse')}<span class="b" style="margin-left:22px">Condo*</span>&nbsp;${mark('Condo')}
      ${a.dwelling==='Other'?`<span class="b" style="margin-left:12px">Other:</span>&nbsp;<span class="bl" style="min-width:60px;padding:0 4px">${esc(a.dwellOther)}</span>`:''}</div>
     <p style="font-size:11.5px;margin-top:3px">*For condominium units, this evaluation includes only those items located within the residential units and does not include the common use areas, or other nonresidential areas of the structure.</p>
-    <div style="display:flex;gap:8px"><span class="b" style="font-size:11.5px">Comments:</span><span class="fv" style="white-space:pre-wrap;flex:1;font-size:12px;line-height:14px">${esc([a.comments,J.units.length>1?J.units.map((x,i)=>x.name?'Unit '+(i+1)+': '+x.name:'').filter(Boolean).join('   '):''].filter(Boolean).join('\n'))}</span></div>
+    <div style="display:flex;gap:8px"><span class="b" style="font-size:11.5px">Comments:</span><span class="fv" style="white-space:pre-wrap;flex:1;font-size:12px;line-height:14px">${esc([a.comments,J.units.length>1&&J.units.some(x=>x.name)?'Units: '+J.units.map((x,i)=>x.name||('Unit '+(i+1))).join(', '):''].filter(Boolean).join('\n'))}</span></div>
    </div>
    <div class="bx" style="border-top:0;height:52px;display:flex;align-items:center"><span class="b" style="font-size:13px;width:280px">SELLER'S DISCLOSURE STATEMENT:</span><span style="font-size:13px">To be completed by the Seller or their representative.</span></div>
    <div style="border:2.5px solid #000;padding:5px 6px 4px;display:flex;font-size:11.5px">
