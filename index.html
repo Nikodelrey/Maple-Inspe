@@ -190,8 +190,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='3.3', APP_DATE='Nov 18, 2026';
+const APP_VER='3.4', APP_DATE='Nov 18, 2026';
 const CHANGES=[
+ ['3.4','Nov 18, 2026','Backup now carries everything to a new address or device: reports, quick remarks (including ones you deleted), spell-check words and settings/signature. Export backup works from the Home Screen icon'],
  ['3.3','Nov 18, 2026','The - button now erases that item: its rating and its comments (asks first if there are comments)'],
  ['3.2','Nov 18, 2026','Opening a report file never quietly replaces a newer copy; importing a backup keeps the newest copy of each report and only adds quick remarks'],
  ['3.1','Nov 17, 2026','PDF always includes the maple leaf and your signature (could be left out if tapped too quickly)'],
@@ -702,10 +703,13 @@ function openJobFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const r
     if(fT<dT){if(!confirm('The copy already on this device is NEWER than this file.\n\nOn this device: '+when(dT)+'\nIn the file: '+when(fT)+'\n\nReplace the newer copy with the OLDER file? (Cancel keeps the newer one.)')){J=JOBS[i];curUnit=0;go('addr');return}}
     JOBS[i]=j}else JOBS.unshift(j);
   J=fixVolts(j);curUnit=0;flush();go('addr')}catch(e){alert('Could not read that file.')}};rd.readAsText(f)}
-function exportAll(){flush();download('maplewood-tish-backup-'+today()+'.json',JSON.stringify({app:'maplewood-tish',v:1,jobs:JOBS,settings:SET,lib:LIB},null,1))}
+function exportAll(){flush();shareOrDownload('maplewood-tish-backup-'+today()+'.json',JSON.stringify({app:'maplewood-tish',v:2,appVersion:APP_VER,jobs:JOBS,settings:SET,lib:LIB,libdel:LIBDEL,words:[...myWords()]},null,1))}
 function importFile(inp){const f=inp.files[0];inp.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);const jobs=d.jobs||(d.job?[d.job]:(d.a?[d]:[]));let n=0;
   jobs.forEach(j=>{const i=JOBS.findIndex(x=>x.id===j.id);if(i<0){JOBS.push(j);n++}else if((j.updated||0)>(JOBS[i].updated||0)){JOBS[i]=j;n++}});
   if(d.lib&&confirm('Also add any quick remarks from the backup that are missing here? (Nothing on this device is removed.)')){const inc=normLib(d.lib);Object.keys(inc).forEach(k=>{LIB[k]=LIB[k]||[];inc[k].forEach(x=>{if(!LIB[k].some(y=>y.t===x.t))LIB[k].push(x)})});saveLib()}
+  if(Array.isArray(d.libdel)&&d.libdel.length){d.libdel.forEach(x=>{if(!LIBDEL.includes(x)){LIBDEL.push(x);const i=x.indexOf('|'),k=x.slice(0,i),t=x.slice(i+1);if(LIB[k])LIB[k]=LIB[k].filter(y=>y.t!==t)}});LS.set('mwtish_libdel',LIBDEL);saveLib()}
+  if(Array.isArray(d.words)&&d.words.length){const m=myWords();d.words.forEach(w=>m.add(w));lsSet('tishsp.words',JSON.stringify([...m]))}
+  if(d.settings&&confirm('Also use the settings from this backup (your name, phone, signature, report header)?')){SET=Object.assign({},DEF_SET,d.settings);LS.set(K_SET,SET);if(SET.sig)prepImg(SET.sig)}
   flush();alert(n+' report(s) imported.');showJobs()}catch(e){alert('Not a valid backup file.')}};rd.readAsText(f)}
 
 /* ---------- settings ---------- */
