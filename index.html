@@ -190,8 +190,9 @@ details.vbox>summary{font-weight:700;color:var(--navy);cursor:pointer;padding:4p
    Maplewood Truth-In-Sale of Housing — evaluator app
    Data lives in this browser (localStorage). Use Reports ▸ Export to back up.
    ===================================================================== */
-const APP_VER='3.2', APP_DATE='Nov 18, 2026';
+const APP_VER='3.3', APP_DATE='Nov 18, 2026';
 const CHANGES=[
+ ['3.3','Nov 18, 2026','The - button now erases that item: its rating and its comments (asks first if there are comments)'],
  ['3.2','Nov 18, 2026','Opening a report file never quietly replaces a newer copy; importing a backup keeps the newest copy of each report and only adds quick remarks'],
  ['3.1','Nov 17, 2026','PDF always includes the maple leaf and your signature (could be left out if tapped too quickly)'],
  ['3.0','Nov 17, 2026','PDF: words fit their exact spots (fixes squeezed spacing like "WARRANTY,BY"); spelling check also checks insulation type'],
@@ -449,6 +450,14 @@ function itemHTML(id,isIns){
 }
 function refreshItem(id){const el=$('#it_'+id);if(!el)return;const t=document.createElement('div');t.innerHTML=itemHTML(id,ITEM[id].sec==='ins');el.replaceWith(t.firstElementChild)}
 function rate(id,v){
+  if(v==='-'){ // "-" = erase this item: rating and its comments
+    const r=rec(id);const sub=id==='39loc'||id==='39hw';
+    if(!sub){const n=(r.rem||[]).filter(m=>m.t.trim()).length;
+      if(n&&!confirm('Erase item '+remLabel(id).replace('.','')+'? This clears the rating and '+n+' comment'+(n>1?'s':'')+'.'))return;
+      r.rem=[];if(id==='39'){['39loc','39hw'].forEach(k=>{const x=peek(k);if(x.v){rec(k).v=''}})}}
+    r.v='';save();refreshItem(id);if(id==='39'){refreshItem('39loc');refreshItem('39hw')}
+    if(modId===remKey(id)){modDraft='';drawMod()}
+    return}
   const r=rec(id);let cur=(r.v||'').split(',').filter(Boolean);
   if(MULTI.has(v)){ cur=cur.filter(x=>MULTI.has(x)); if(cur.includes(v))cur=cur.filter(x=>x!==v); else cur.push(v); }
   else cur=(cur.length===1&&cur[0]===v)?[]:[v];
